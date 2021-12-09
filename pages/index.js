@@ -1,8 +1,97 @@
-import Head from 'next/head'
-import Image from 'next/image'
-import styles from '../styles/Home.module.css'
+import { useColorMode } from "@chakra-ui/color-mode";
+import { Box, Flex, Heading, Text, Stack, Center } from "@chakra-ui/layout";
+import { Switch } from "@chakra-ui/switch";
+import Head from "next/head";
+import Image from "next/image";
+import { useEffect, useState } from "react";
+import styles from "../styles/Home.module.css";
 
 export default function Home() {
+  const { colorMode, toggleColorMode } = useColorMode()
+  const [grid, setGrid] = useState({one:"", two:"", three:"", four:"", five:"", six:"", seven:"", eight:"", nine:"",})
+  const [whosTurn, setWhosTurn] = useState('')
+  const [isPlaying, setIsPlaying] = useState(false)
+  const [onePlayer, setOnePlayer] = useState(false)
+
+  const checkWin =[
+    (grid["one"] === grid["two"] && grid["one"] === grid["three"] &&grid["one"] != ""),
+    (grid["four"] === grid["five"] && grid["four"] === grid["six"] &&grid["four"] != ""),
+    (grid["seven"] === grid["eight"] && grid["seven"] === grid["nine"] &&grid["seven"] != ""),
+    (grid["one"] === grid["four"] && grid["one"] === grid["seven"] &&grid["one"] != ""),
+    (grid["two"] === grid["five"] && grid["two"] === grid["eight"] &&grid["two"] != ""),
+    (grid["three"] === grid["six"] && grid["three"] === grid["nine"] &&grid["three"] != ""),
+    (grid["one"] === grid["five"] && grid["one"] === grid["nine"] &&grid["one"] != ""),
+    (grid["three"] === grid["five"] && grid["three"] === grid["seven"] &&grid["three"] != ""),
+  ]
+
+  useEffect(() => {
+    setGrid({
+      one:"",
+      two:"",
+      three:"",
+      four:"",
+      five:"",
+      six:"",
+      seven:"",
+      eight:"",
+      nine:"",
+    })
+  }, [isPlaying])
+
+  useEffect(() => {
+    const playerTwo = () =>{
+      const currentGrid = Object.keys(grid).filter(square => grid[square] === "")
+    }
+
+    if(checkWin.find(winCon => winCon == true) && isPlaying){
+      alert("You WIN!!!")
+      setWhosTurn("")
+    }else{
+      whosTurn === "X" ? setWhosTurn("O") : setWhosTurn("X")
+    }
+
+    if(onePlayer){
+      playerTwo()
+    }
+
+  }, [grid])
+
+  const handleClick = (square) =>{
+
+    if(whosTurn === ""){
+      return null
+    }
+
+    if(!grid[square]){
+      setGrid({...grid, [square]:whosTurn})
+      console.log(checkWin)
+
+    }
+    else{
+      grid[square] === whosTurn ? alert("You already went there!") :
+      alert(grid[square] + " already went there!")
+    }
+
+  }
+
+  const gameState = (players) =>{
+
+    {isPlaying ? (
+      setIsPlaying(false),
+      setWhosTurn(""),
+      setOnePlayer(false)
+    )
+    :
+    (
+      setIsPlaying(true),
+      setWhosTurn("X"),
+      players === "two" ? setOnePlayer(false) : setOnePlayer(true) 
+    )}
+
+  }
+
+
+
   return (
     <div className={styles.container}>
       <Head>
@@ -11,45 +100,52 @@ export default function Home() {
         <link rel="icon" href="/favicon.ico" />
       </Head>
 
+      <Flex direction={{base:"column", md:"row"}} justifyContent={{base:"center", md: "space-between"}} alignItems="center">
+          <Heading>Tic-Tac-Toe!</Heading>
+          <Stack direction={{base: "column", md:"row"}} alignItems="center">
+            {isPlaying ? (
+            <Box as="button" fontSize="lg" border="2px" p="1" m="1" borderRadius="5px" onClick={() => gameState()}>
+                New Game
+              </Box>
+            ):(<></>)}
+            <Switch fontSize="lg" p="1" m="1" onChange={toggleColorMode}>
+            {colorMode === "light" ? "Dark" : "Light"} Mode
+              </Switch>
+          </Stack>
+      </Flex>
       <main className={styles.main}>
-        <h1 className={styles.title}>
-          Welcome to <a href="https://nextjs.org">Next.js!</a>
-        </h1>
 
-        <p className={styles.description}>
-          Get started by editing{' '}
-          <code className={styles.code}>pages/index.js</code>
-        </p>
 
-        <div className={styles.grid}>
-          <a href="https://nextjs.org/docs" className={styles.card}>
-            <h2>Documentation &rarr;</h2>
-            <p>Find in-depth information about Next.js features and API.</p>
-          </a>
+  
+        <Flex flexWrap="wrap" alignItems="center" justifyContent="center" maxW="1000px">
+        {isPlaying ? ( <>
 
-          <a href="https://nextjs.org/learn" className={styles.card}>
-            <h2>Learn &rarr;</h2>
-            <p>Learn about Next.js in an interactive course with quizzes!</p>
-          </a>
+            {Object.keys(grid).map(square => {
+              return (<>
+                <Box key={square} as="button" p="1" borderWidth='5px' borderColor="grey" boxSize="12em" backgroundColor="" flexBasis="30%"
+                onClick={() => handleClick(`${square}`)}
+                >
+                    <Text fontSize="5em">{grid[square]}</Text>
+                </Box>
+                </>
+              )
+            })}
 
-          <a
-            href="https://github.com/vercel/next.js/tree/master/examples"
-            className={styles.card}
-          >
-            <h2>Examples &rarr;</h2>
-            <p>Discover and deploy boilerplate example Next.js projects.</p>
-          </a>
+          </>)
+          :
+          (
+            <>
+            <Box as="button">
+              <Center boxSize="200px" onClick={() => gameState('one')} fontSize="5em">PVE</Center>
+            </Box>
+            <Box as="button">
+              <Center boxSize="200px" onClick={() => gameState('two')} fontSize="5em">PVP</Center>
+            </Box>
+            </>
 
-          <a
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=default-template&utm_campaign=create-next-app"
-            className={styles.card}
-          >
-            <h2>Deploy &rarr;</h2>
-            <p>
-              Instantly deploy your Next.js site to a public URL with Vercel.
-            </p>
-          </a>
-        </div>
+          )}
+        </Flex>
+
       </main>
 
       <footer className={styles.footer}>
@@ -58,12 +154,12 @@ export default function Home() {
           target="_blank"
           rel="noopener noreferrer"
         >
-          Powered by{' '}
+          Powered by{" "}
           <span className={styles.logo}>
             <Image src="/vercel.svg" alt="Vercel Logo" width={72} height={16} />
           </span>
         </a>
       </footer>
     </div>
-  )
+  );
 }
