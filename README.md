@@ -5,5 +5,5 @@ I really enjoyed working with Chakra. The component integration is very easy. I 
 
 ## Future additions
 
-This project is a test for me. I am looking to add in logic to play against the computer for single player support. Also convert the app to a PWA for offline play. 
+This project is a test for me. I am looking to convert the app to a PWA for offline play. ALso will explore usage of sockey.io to make multiplayer online mode.
 
