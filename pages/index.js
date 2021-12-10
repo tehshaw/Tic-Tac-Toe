@@ -13,7 +13,7 @@ import {
 import { Box, Flex, Heading, Text, Stack, Center } from "@chakra-ui/layout";
 import Head from "next/head";
 import Image from "next/image";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import styles from "../styles/Home.module.css";
 import { checkWinCon } from '../logic/WinCon'
 
@@ -26,12 +26,14 @@ export default function Home() {
   const [isPlaying, setIsPlaying] = useState(false)
   const [isOnePlayer, setIsOnePlayer] = useState(false)
   const { isOpen, onOpen, onClose } = useDisclosure()
+  const [gameOver, setGameOver] = useState(false)
 
 
 
   const handleClick = (square) =>{
+    console.log(gameOver)
 
-    if(whosTurn === ""){
+    if(gameOver){
       return null
     }
 
@@ -39,6 +41,7 @@ export default function Home() {
       const winner = checkWinCon(grid, setGrid, square, whosTurn, isOnePlayer)
       if(winner){
         onOpen()
+        setGameOver(true)
         return null
       }
       if(!isOnePlayer) whosTurn === "X" ? setWhosTurn("O") : setWhosTurn("X")
@@ -61,6 +64,7 @@ export default function Home() {
     )
     :
     (
+      setGameOver(false),
       setIsPlaying(true),
       setWhosTurn("X"),
       players === "two" ? setIsOnePlayer(false) : setIsOnePlayer(true) 
@@ -95,7 +99,7 @@ export default function Home() {
         
         {isPlaying ? ( <>
           <Heading mb="4">
-              It is {whosTurn} turn to play!
+              {gameOver ? (`${whosTurn} has won!`) : (`It is ${whosTurn} turn to play!`)}
           </Heading>
           </>):(<></>)}
   
