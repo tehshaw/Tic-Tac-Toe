@@ -1,60 +1,33 @@
 import { useColorMode } from "@chakra-ui/color-mode";
+import {
+  Modal,
+  ModalOverlay,
+  ModalContent,
+  ModalHeader,
+  ModalFooter,
+  ModalBody,
+  ModalCloseButton,
+  Button,
+  useDisclosure,
+} from '@chakra-ui/react'
 import { Box, Flex, Heading, Text, Stack, Center } from "@chakra-ui/layout";
-import { Switch } from "@chakra-ui/switch";
 import Head from "next/head";
 import Image from "next/image";
 import { useEffect, useState } from "react";
 import styles from "../styles/Home.module.css";
+import { checkWinCon } from '../logic/WinCon'
+
 
 export default function Home() {
+  const matchStart = {one:"", two:"", three:"", four:"", five:"", six:"", seven:"", eight:"", nine:"",}
   const { colorMode, toggleColorMode } = useColorMode()
-  const [grid, setGrid] = useState({one:"", two:"", three:"", four:"", five:"", six:"", seven:"", eight:"", nine:"",})
+  const [grid, setGrid] = useState(matchStart)
   const [whosTurn, setWhosTurn] = useState('')
   const [isPlaying, setIsPlaying] = useState(false)
-  const [onePlayer, setOnePlayer] = useState(false)
+  const [isOnePlayer, setIsOnePlayer] = useState(false)
+  const { isOpen, onOpen, onClose } = useDisclosure()
 
-  const checkWin =[
-    (grid["one"] === grid["two"] && grid["one"] === grid["three"] &&grid["one"] != ""),
-    (grid["four"] === grid["five"] && grid["four"] === grid["six"] &&grid["four"] != ""),
-    (grid["seven"] === grid["eight"] && grid["seven"] === grid["nine"] &&grid["seven"] != ""),
-    (grid["one"] === grid["four"] && grid["one"] === grid["seven"] &&grid["one"] != ""),
-    (grid["two"] === grid["five"] && grid["two"] === grid["eight"] &&grid["two"] != ""),
-    (grid["three"] === grid["six"] && grid["three"] === grid["nine"] &&grid["three"] != ""),
-    (grid["one"] === grid["five"] && grid["one"] === grid["nine"] &&grid["one"] != ""),
-    (grid["three"] === grid["five"] && grid["three"] === grid["seven"] &&grid["three"] != ""),
-  ]
 
-  useEffect(() => {
-    setGrid({
-      one:"",
-      two:"",
-      three:"",
-      four:"",
-      five:"",
-      six:"",
-      seven:"",
-      eight:"",
-      nine:"",
-    })
-  }, [isPlaying])
-
-  useEffect(() => {
-    const playerTwo = () =>{
-      const currentGrid = Object.keys(grid).filter(square => grid[square] === "")
-    }
-
-    if(checkWin.find(winCon => winCon == true) && isPlaying){
-      alert("You WIN!!!")
-      setWhosTurn("")
-    }else{
-      whosTurn === "X" ? setWhosTurn("O") : setWhosTurn("X")
-    }
-
-    if(onePlayer){
-      playerTwo()
-    }
-
-  }, [grid])
 
   const handleClick = (square) =>{
 
@@ -63,14 +36,18 @@ export default function Home() {
     }
 
     if(!grid[square]){
-      setGrid({...grid, [square]:whosTurn})
-      console.log(checkWin)
-
+      const winner = checkWinCon(grid, setGrid, square, whosTurn, isOnePlayer)
+      if(winner){
+        onOpen()
+        return null
+      }
+      if(!isOnePlayer) whosTurn === "X" ? setWhosTurn("O") : setWhosTurn("X")
     }
     else{
       grid[square] === whosTurn ? alert("You already went there!") :
       alert(grid[square] + " already went there!")
-    }
+      return null
+    }   
 
   }
 
@@ -79,13 +56,14 @@ export default function Home() {
     {isPlaying ? (
       setIsPlaying(false),
       setWhosTurn(""),
-      setOnePlayer(false)
+      setIsOnePlayer(false),
+      setGrid(matchStart)
     )
     :
     (
       setIsPlaying(true),
       setWhosTurn("X"),
-      players === "two" ? setOnePlayer(false) : setOnePlayer(true) 
+      players === "two" ? setIsOnePlayer(false) : setIsOnePlayer(true) 
     )}
 
   }
@@ -108,14 +86,18 @@ export default function Home() {
                 New Game
               </Box>
             ):(<></>)}
-            <Switch fontSize="lg" p="1" m="1" onChange={toggleColorMode}>
-            {colorMode === "light" ? "Dark" : "Light"} Mode
-              </Switch>
+            <Button fontSize="lg" p="1" m="1" onClick={toggleColorMode}>
+            {colorMode === 'dark' ? "Dark" : "Light"} Mode on!
+              </Button>
           </Stack>
       </Flex>
       <main className={styles.main}>
-
-
+        
+        {isPlaying ? ( <>
+          <Heading mb="4">
+              It is {whosTurn} turn to play!
+          </Heading>
+          </>):(<></>)}
   
         <Flex flexWrap="wrap" alignItems="center" justifyContent="center" maxW="1000px">
         {isPlaying ? ( <>
@@ -123,7 +105,7 @@ export default function Home() {
             {Object.keys(grid).map(square => {
               return (<>
                 <Box key={square} as="button" p="1" borderWidth='5px' borderColor="grey" boxSize="12em" backgroundColor="" flexBasis="30%"
-                onClick={() => handleClick(`${square}`)}
+                  onClick={() => handleClick(`${square}`)}
                 >
                     <Text fontSize="5em">{grid[square]}</Text>
                 </Box>
@@ -145,6 +127,24 @@ export default function Home() {
 
           )}
         </Flex>
+<>
+        <Modal isOpen={isOpen} onClose={onClose} isCentered>
+        <ModalOverlay />
+        <ModalContent>
+          <ModalHeader>We have a winner!</ModalHeader>
+          <ModalCloseButton />
+          <ModalBody>
+            <Center>{whosTurn} has won!</Center>
+          </ModalBody>
+
+          <ModalFooter>
+            <Button colorScheme='blue' mr={3} onClick={onClose}>
+              Close
+            </Button>
+          </ModalFooter>
+        </ModalContent>
+      </Modal>
+    </>
 
       </main>
 
