@@ -31,8 +31,6 @@ export default function Home() {
 
 
   const handleClick = (square) =>{
-    console.log(gameOver)
-
     if(gameOver){
       return null
     }
@@ -40,6 +38,7 @@ export default function Home() {
     if(!grid[square]){
       const winner = checkWinCon(grid, setGrid, square, whosTurn, isOnePlayer)
       if(winner){
+        setWhosTurn(winner)
         onOpen()
         setGameOver(true)
         return null
@@ -99,7 +98,7 @@ export default function Home() {
         
         {isPlaying ? ( <>
           <Heading mb="4">
-              {gameOver ? (`${whosTurn} has won!`) : (`It is ${whosTurn} turn to play!`)}
+              {gameOver ? (`${whosTurn} has won!`) : (`It is ${whosTurn}'s turn to play!`)}
           </Heading>
           </>):(<></>)}
   
@@ -111,7 +110,7 @@ export default function Home() {
                 <Box key={square} as="button" p="1" borderWidth='5px' borderColor="grey" boxSize="12em" backgroundColor="" flexBasis="30%"
                   onClick={() => handleClick(`${square}`)}
                 >
-                    <Text fontSize="5em">{grid[square]}</Text>
+                    <Text fontSize="5em" key={square}>{grid[square]}</Text>
                 </Box>
                 </>
               )
@@ -122,11 +121,12 @@ export default function Home() {
           (
             <>
             <Box as="button">
-              <Center boxSize="200px" onClick={() => gameState('one')} fontSize="5em">PVE</Center>
+              <Center boxSize="200px" onClick={() => gameState('one')} fontSize="5em">Play!</Center>
             </Box>
-            <Box as="button">
+            {/* Remove PVP option for later use when adding socket.io stuff */}
+            {/* <Box as="button">
               <Center boxSize="200px" onClick={() => gameState('two')} fontSize="5em">PVP</Center>
-            </Box>
+            </Box> */}
             </>
 
           )}
