@@ -17,6 +17,9 @@ import { useState } from "react";
 import styles from "../styles/Home.module.css";
 import { checkWinCon } from '../logic/WinCon'
 
+import { io } from "socket.io-client";
+
+const socket = io("http://localhost:3001");
 
 export default function Home() {
   const matchStart = {one:"", two:"", three:"", four:"", five:"", six:"", seven:"", eight:"", nine:"",}
@@ -124,9 +127,9 @@ export default function Home() {
               <Center boxSize="200px" onClick={() => gameState('one')} fontSize="5em">Play!</Center>
             </Box>
             {/* Remove PVP option for later use when adding socket.io stuff */}
-            {/* <Box as="button">
+            <Box as="button">
               <Center boxSize="200px" onClick={() => gameState('two')} fontSize="5em">PVP</Center>
-            </Box> */}
+            </Box>
             </>
 
           )}
