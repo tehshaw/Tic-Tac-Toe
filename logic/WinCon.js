@@ -24,33 +24,31 @@ export const checkWinCon = (grid, setGrid, playerMove, whosTurn, isOnePlayer) =>
         return boardState.find(winCon => winCon == true)
     }
 
+    setGrid({...tempGrid})
 
     //if the last move matched a win con, update the boardstate GRID, and return the player who won
     if(winner(tempGrid)){
-        setGrid({...tempGrid})
         return whosTurn
+    }
+
+    //checks to see if there are any more open spaces on the board, if not than end the game a draw
+    const movesLeft = Object.values(tempGrid).filter(moves => moves === '').length
+    if(movesLeft === 0){
+        return "No one"
     }
 
     //if during a single player game, the player move did not create a win con, create a move for the NPC and check its win con
     if(isOnePlayer){
         const pcMove = playerTwo(tempGrid)
 
-        if(pcMove === undefined){
-            setGrid({...tempGrid})
-            return "No one"
-        }
-
         tempGrid = {...tempGrid, [pcMove]:"O"}
+        setGrid({...tempGrid})
 
         if(winner(tempGrid)){
-            setGrid({...tempGrid})
             return "The NPC"
         }
     }
     
-    //if no one wins in single player game or in two PC player game with no winner, update board state on the screen
-    setGrid({...tempGrid})
-
     //return null to not trigger win condition
     return ""
 
