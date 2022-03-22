@@ -11,21 +11,26 @@ import {
   useDisclosure,
 } from '@chakra-ui/react'
 import { Box, Flex, Heading, Text, Stack, Center } from "@chakra-ui/layout";
+
 import Head from "next/head";
 import Image from "next/image";
+
 import { useState } from "react";
+
 import styles from "../styles/Home.module.css";
+
 import { checkWinCon } from '../logic/WinCon'
 
 
 export default function Home() {
-  const matchStart = {one:"", two:"", three:"", four:"", five:"", six:"", seven:"", eight:"", nine:"",}
+  const { isOpen, onOpen, onClose } = useDisclosure()
   const { colorMode, toggleColorMode } = useColorMode()
+
+  const matchStart = {one:"", two:"", three:"", four:"", five:"", six:"", seven:"", eight:"", nine:"",}
   const [grid, setGrid] = useState(matchStart)
   const [whosTurn, setWhosTurn] = useState('')
   const [isPlaying, setIsPlaying] = useState(false)
   const [isOnePlayer, setIsOnePlayer] = useState(false)
-  const { isOpen, onOpen, onClose } = useDisclosure()
   const [gameOver, setGameOver] = useState(false)
 
 
@@ -71,8 +76,6 @@ export default function Home() {
 
   }
 
-
-
   return (
     <div className={styles.container}>
       <Head>
@@ -85,24 +88,27 @@ export default function Home() {
           <Heading>Tic-Tac-Toe!</Heading>
           <Stack direction={{base: "column", md:"row"}} alignItems="center">
             {isPlaying ? (
-            <Box as="button" fontSize="lg" border="2px" p="1" m="1" borderRadius="5px" onClick={() => gameState()}>
-                New Game
+              <Box as="button" fontSize="lg" border="2px" p="1" m="1" borderRadius="5px" onClick={() => gameState()}>
+                  New Game
               </Box>
             ):(<></>)}
-            <Button fontSize="lg" p="1" m="1" onClick={toggleColorMode}>
-            {colorMode === 'dark' ? "Dark" : "Light"} Mode on!
+              <Button fontSize="lg" p="1" m="1" onClick={toggleColorMode}>
+                {colorMode === 'dark' ? "Dark" : "Light"} Mode on!
               </Button>
           </Stack>
       </Flex>
+
+
       <main className={styles.main}>
         
         {isPlaying ? ( <>
           <Heading mb="4">
-              {gameOver ? (`${whosTurn} has won!`) : (`It is ${whosTurn}'s turn to play!`)}
+              {gameOver ? (`${whosTurn} won!`) : (`It is ${whosTurn}'s turn to play!`)}
           </Heading>
           </>):(<></>)}
   
         <Flex flexWrap="wrap" alignItems="center" justifyContent="center" maxW="1000px">
+
         {isPlaying ? ( <>
 
             {Object.keys(grid).map(square => {
@@ -135,10 +141,10 @@ export default function Home() {
         <Modal isOpen={isOpen} onClose={onClose} isCentered>
         <ModalOverlay />
         <ModalContent>
-          <ModalHeader>We have a winner!</ModalHeader>
+          <ModalHeader>Game Over!</ModalHeader>
           <ModalCloseButton />
           <ModalBody>
-            <Center>{whosTurn} has won!</Center>
+            <Center>{whosTurn} won!</Center>
           </ModalBody>
 
           <ModalFooter>

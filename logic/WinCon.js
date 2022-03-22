@@ -35,6 +35,11 @@ export const checkWinCon = (grid, setGrid, playerMove, whosTurn, isOnePlayer) =>
     if(isOnePlayer){
         const pcMove = playerTwo(tempGrid)
 
+        if(pcMove === undefined){
+            setGrid({...tempGrid})
+            return "No one"
+        }
+
         tempGrid = {...tempGrid, [pcMove]:"O"}
 
         if(winner(tempGrid)){
@@ -43,9 +48,10 @@ export const checkWinCon = (grid, setGrid, playerMove, whosTurn, isOnePlayer) =>
         }
     }
     
-    //if no one wins or not a single player game, update board state on the screen
+    //if no one wins in single player game or in two PC player game with no winner, update board state on the screen
     setGrid({...tempGrid})
 
+    //return null to not trigger win condition
     return ""
 
 }
