@@ -4,7 +4,7 @@ import { playerTwo } from "../logic/PlayerTwo";
 //the last player move as PLAYERMOVE, who made the last move as WHOSTURN and boolean to track single player game
 //this functions will check to see if the last played move caused a win con or not
 //it will also make a play for the NPC in a single player game
-export const checkWinCon = (grid, setGrid, playerMove, whosTurn, isOnePlayer = true) => {
+export const checkWinCon = (grid, setGrid, playerMove, whosTurn, isOnePlayer) => {
 
     
     const tempGrid = {...grid, [playerMove]:whosTurn}
@@ -24,11 +24,17 @@ export const checkWinCon = (grid, setGrid, playerMove, whosTurn, isOnePlayer = t
         return boardState.find(winCon => winCon == true)
     }
 
+    setGrid({...tempGrid})
 
     //if the last move matched a win con, update the boardstate GRID, and return the player who won
     if(winner(tempGrid)){
-        setGrid({...tempGrid})
         return whosTurn
+    }
+
+    //checks to see if there are any more open spaces on the board, if not than end the game a draw
+    const movesLeft = Object.values(tempGrid).filter(moves => moves === '').length
+    if(movesLeft === 0){
+        return "No one"
     }
 
     //if during a single player game, the player move did not create a win con, create a move for the NPC and check its win con
@@ -36,16 +42,14 @@ export const checkWinCon = (grid, setGrid, playerMove, whosTurn, isOnePlayer = t
         const pcMove = playerTwo(tempGrid)
 
         tempGrid = {...tempGrid, [pcMove]:"O"}
+        setGrid({...tempGrid})
 
         if(winner(tempGrid)){
-            setGrid({...tempGrid})
             return "The NPC"
         }
     }
     
-    //if no one wins or not a single player game, update board state on the screen
-    setGrid({...tempGrid})
-
+    //return null to not trigger win condition
     return ""
 
 }
