@@ -50,7 +50,6 @@ export const playerTwo = (grid) => {
 
     const PCplay = Math.floor(Math.random()*nextPlays.length)
 
-    console.log(nextPlays[PCplay])
     return nextPlays[PCplay]
 
 }

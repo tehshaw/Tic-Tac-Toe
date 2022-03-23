@@ -22,6 +22,10 @@ server.listen(port, () => {
 io.on("connection", (socket) => {
     console.log("User connected: " + socket.id);
 
+    socket.join(`test room`)
+    io.in("test room").emit('join', `${socket.id} joined the room.`)
+    console.log(socket.id + ' joined room "test room"')
+
     socket.on('disconnect' , () => {
         console.log('User ' + socket.id + ' disconnected')
     })
