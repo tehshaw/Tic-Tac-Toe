@@ -12,7 +12,7 @@ import {
 } from '@chakra-ui/react'
 import { Box, Flex, Heading, Text, Center } from "@chakra-ui/layout";
 import Image from "next/image";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import styles from "../styles/Home.module.css";
 import { checkWinCon } from '../logic/WinCon'
 import io from "socket.io-client";
@@ -24,14 +24,16 @@ export default function Game(props) {
   const matchStart = {one:"", two:"", three:"", four:"", five:"", six:"", seven:"", eight:"", nine:"",}
   const [grid, setGrid] = useState(matchStart)
   const [whosTurn, setWhosTurn] = useState('')
-  const [isPlaying, setIsPlaying] = useState(false)
   const [isOnePlayer, setIsOnePlayer] = useState(false)
   const [gameOver, setGameOver] = useState(false)
+  const winner = useRef();
+  const roomID = useRef();
+  const myMove = useRef('X')
   const [socket, setSocket] = useState(null);
 
 
   useEffect(() => {
-    gameState(props.gameType)
+    startGame(props.gameType)
 
     //only attempt to connect to the server if player selected 'PVP' as an option
     //where props.gameType will = 'multi'
@@ -47,13 +49,20 @@ export default function Game(props) {
     if(!socket) return; 
 
     socket.on('connect', () => {
-      console.log("Connected ", socket.id)
+      console.log("Connected as userID: ", socket.id)
     });
     socket.on('disconnect', () => {
       console.log("Disconnected from server")
     });
-    socket.on('join', (arg) => {
-      console.log(arg)
+
+    socket.on('room', (args) => {
+      roomID.current = args
+      console.log("Connected to room: " + args)
+    })
+
+    socket.on('move', (args) => {
+      checkMove(args)
+      whosTurn === "X" ? setWhosTurn('O') : setWhosTurn('X')
     })
  
   }, [socket]);
@@ -61,83 +70,76 @@ export default function Game(props) {
   const handleClick = (square) =>{
     //if game is already over, prevent any further board changes
     if(gameOver){
-      return null
+      return;
     }
 
+    if(myMove.current !== whosTurn){
+      alert('It is not your turn yet!')
+      return;
+    }
+
+    if(grid[square]){
+      grid[nextMove] === whosTurn ? alert("You already went there!") :
+      alert(grid[nextMove] + " already went there!")
+      return;
+    }
+
+    if(isOnePlayer){
+      checkMove(square)
+    }else{
+      socket.emit('move', { move : square, room : roomID.current })
+    }
+  }
+
+
+  const checkMove = (nextMove) => {
     //if an empty square is selected, all empty squares are initalized as '' (empty string)
     //which will return a falsey statement to enter the if.
-    if(!grid[square]){
-      const winner = checkWinCon(grid, setGrid, square, whosTurn, isOnePlayer)
-      if(winner){
-        setWhosTurn(winner)
+      const isWinner = checkWinCon(grid, setGrid, nextMove, whosTurn, isOnePlayer)
+      if(isWinner){
+        winner.current = isWinner
         onOpen()
         setGameOver(true)
         return null
       }
-      //changes whos turn it is if not a single player game
-      if(!isOnePlayer) whosTurn === "X" ? setWhosTurn("O") : setWhosTurn("X")
-    }
-    //if a square is selected that is not empty, prompt the user as such.
-    else{
-      grid[square] === whosTurn ? alert("You already went there!") :
-      alert(grid[square] + " already went there!")
-      return null
-    }   
-
   }
 
-  const gameState = (gameType) =>{
-
-    {isPlaying ? (
-      setIsPlaying(false),
-      setWhosTurn(""),
-      setIsOnePlayer(false),
+  const startGame = (gameType) =>{
+      setGameOver(false)
       setGrid(matchStart)
-    )
-    :
-    (
-      setGameOver(false),
-      setIsPlaying(true),
-      setWhosTurn("X"),
+      setWhosTurn("X") //// FIX HERE FOR MULTI PLAYER GAME
       gameType === "multi" ? setIsOnePlayer(false) : setIsOnePlayer(true) 
-    )}
-
   }
 
   return (
     <>
-        
-        {isPlaying ? ( <>
-          <Heading mb="4">
-              {gameOver ? (`${whosTurn} won!`) : (`It is ${whosTurn}'s turn to play!`)}
-          </Heading>
-          </>):(<></>)}
-  
-        <Flex flexWrap="wrap" alignItems="center" justifyContent="center" maxW="1000px">
+      <Heading mb="4">
+        {gameOver ? (`${winner.current} won!`) : (`It is ${whosTurn}'s turn to play!`)}
+      </Heading>
 
-        {isPlaying &&
+      <Flex flexWrap="wrap" alignItems="center" justifyContent="center" maxW="1000px">
 
-            Object.keys(grid).map(square => {
-              return (<>
-                <Box key={square} as="button" p="1" borderWidth='5px' borderColor="grey" boxSize="12em" backgroundColor="" flexBasis="30%"
-                  onClick={() => handleClick(`${square}`)}
-                >
-                    <Text fontSize="5em" key={square}>{grid[square]}</Text>
-                </Box>
-                </>
-              )
-            })
+        {Object.keys(grid).map(square => {
+          return (<>
+            <Box as="button" p="1" borderWidth='5px' borderColor="grey" boxSize="12em" backgroundColor="" flexBasis="30%"
+              onClick={() => handleClick(`${square}`)}
+            >
+                <Text fontSize="5em" key={square}>{grid[square]}</Text>
+            </Box>
+            </>
+          )
+        })}
+      
+      </Flex>
 
-       }
-        </Flex>
-<>
-        <Modal isOpen={isOpen} onClose={onClose} isCentered>
+    <>
+      <Modal isOpen={isOpen} onClose={onClose} isCentered>
         <ModalOverlay />
         <ModalContent>
           <ModalHeader>Game Over!</ModalHeader>
           <ModalCloseButton />
           <ModalBody>
-            <Center>{whosTurn} won!</Center>
+            <Center>{winner.current} won!</Center>
           </ModalBody>
 
           <ModalFooter>

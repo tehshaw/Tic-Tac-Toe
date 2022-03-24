@@ -2,6 +2,7 @@ const express = require("express");
 const http = require("http");
 const socketIO= require("socket.io");
 const cors = require('cors')
+const { randomUUID } = require('crypto')
 
 const app = express();
 app.use(cors())
@@ -19,17 +20,43 @@ server.listen(port, () => {
     console.log(`Server started on port ${port}`);
 });
 
-io.on("connection", (socket) => {
-    console.log("User connected: " + socket.id);
+let singleRooms = []
 
-    socket.join(`test room`)
-    io.in("test room").emit('join', `${socket.id} joined the room.`)
-    console.log(socket.id + ' joined room "test room"')
+io.on("connection", (socket) => {
+
+    let myRoom = ''
+
+    if(singleRooms.length() > 0){
+        myRoom = singleRooms[0]
+        socket.join(myRoom)
+        singleRooms.shift()
+    }else{
+        myRoom = randomUUID()
+        singleRooms.push(myRoom)
+        socket.join(myRoom)
+    }
+
+    io.to(socket.id).emit('room', myRoom)
+
+    socket.on('move', (args) =>{
+        console.log(args)
+        io.in(args.room).emit('move', args.move)
+    })
 
     socket.on('disconnect' , () => {
         console.log('User ' + socket.id + ' disconnected')
     })
+
 });
+
+function usersInRoom(io, roomID){
+    const arr = Array.from(io.sockets.adapter.rooms)
+    const myRoom = arr.filter(room => room[0] === roomID)
+    const users = myRoom[0][1].values()
+    return users
+}
+
+
 
 
   
