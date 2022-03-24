@@ -15,27 +15,25 @@ import { useEffect, useRef, useState } from "react";
 import { checkWinCon } from '../../logic/WinCon'
 import io from "socket.io-client";
 
-
 export default function Game() {
   const { isOpen, onOpen, onClose } = useDisclosure()
-
   const matchStart = {one:"", two:"", three:"", four:"", five:"", six:"", seven:"", eight:"", nine:"",}
   const [grid, setGrid] = useState(matchStart)
   const [whosTurn, setWhosTurn] = useState('')
   const [isOnePlayer, setIsOnePlayer] = useState(false)
   const [gameOver, setGameOver] = useState(false)
+  const [socket, setSocket] = useState(null);
+
   const winner = useRef();
   const myMove = useRef('X')
-  const [socket, setSocket] = useState(null);
   const router = useRouter()
 
   useEffect(() => {
-    const { game } = router.query
-    startGame(game)
+    startGame(router.query.game)
 
     //only attempt to connect to the server if player selected 'PVP' as an option
     //where props.gameType will = 'multi'
-    if (game === 'single'){
+    if (router.query.game === 'single'){
       return;
     }else{
       setSocket(io('http://localhost:3001'));

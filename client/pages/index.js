@@ -11,7 +11,7 @@ export default function index() {
         </Box>
             
         <Box>
-            <Center boxSize="200px" fontSize="5em"><Link href='/game/lobby'>Online</Link></Center>
+            <Center boxSize="200px" fontSize="5em"><Link href='/game/multi'>Online</Link></Center>
         </Box>
     </>
 
