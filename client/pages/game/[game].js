@@ -1,4 +1,3 @@
-import { useColorMode } from "@chakra-ui/color-mode";
 import {
   Modal,
   ModalOverlay,
@@ -11,14 +10,13 @@ import {
   useDisclosure,
 } from '@chakra-ui/react'
 import { Box, Flex, Heading, Text, Center } from "@chakra-ui/layout";
-import Image from "next/image";
+import { useRouter } from 'next/router';
 import { useEffect, useRef, useState } from "react";
-import styles from "../styles/Home.module.css";
-import { checkWinCon } from '../logic/WinCon'
+import { checkWinCon } from '../../logic/WinCon'
 import io from "socket.io-client";
 
 
-export default function Game(props) {
+export default function Game() {
   const { isOpen, onOpen, onClose } = useDisclosure()
 
   const matchStart = {one:"", two:"", three:"", four:"", five:"", six:"", seven:"", eight:"", nine:"",}
@@ -27,21 +25,23 @@ export default function Game(props) {
   const [isOnePlayer, setIsOnePlayer] = useState(false)
   const [gameOver, setGameOver] = useState(false)
   const winner = useRef();
-  const roomID = useRef();
   const myMove = useRef('X')
   const [socket, setSocket] = useState(null);
-
+  const router = useRouter()
 
   useEffect(() => {
-    startGame(props.gameType)
+    const { game } = router.query
+    startGame(game)
 
     //only attempt to connect to the server if player selected 'PVP' as an option
     //where props.gameType will = 'multi'
-    if (props.gameType === 'single'){
+    if (game === 'single'){
       return;
     }else{
       setSocket(io('http://localhost:3001'));
     }
+
+    return () => { if(socket) socket.disconnect()}
 
   },[])
 
@@ -51,19 +51,26 @@ export default function Game(props) {
     socket.on('connect', () => {
       console.log("Connected as userID: ", socket.id)
     });
+
+    socket.on('connect_error', () => {
+      console.log('Unable to reach server. Online mode not avialable.')
+      
+      socket.disconnect();
+    })
     socket.on('disconnect', () => {
       console.log("Disconnected from server")
     });
 
-    socket.on('room', (args) => {
-      roomID.current = args
-      console.log("Connected to room: " + args)
+    socket.on('message', (args) => {
+      console.log(args)
     })
 
     socket.on('move', (args) => {
       checkMove(args)
       whosTurn === "X" ? setWhosTurn('O') : setWhosTurn('X')
     })
+
+    return () => { if(socket) socket.disconnect()}
  
   }, [socket]);
 
@@ -87,7 +94,7 @@ export default function Game(props) {
     if(isOnePlayer){
       checkMove(square)
     }else{
-      socket.emit('move', { move : square, room : roomID.current })
+      socket.emit('move', { move : square })
     }
   }
 
@@ -113,6 +120,7 @@ export default function Game(props) {
 
   return (
     <>
+
       <Heading mb="4">
         {gameOver ? (`${winner.current} won!`) : (`It is ${whosTurn}'s turn to play!`)}
       </Heading>
@@ -151,19 +159,7 @@ export default function Game(props) {
       </Modal>
     </>
 
+  </>
 
-      <footer className={styles.footer}>
-        <a
-          href="https://vercel.com?utm_source=create-next-app&utm_medium=default-template&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Powered by{" "}
-          <span className={styles.logo}>
-            <Image src="/vercel.svg" alt="Vercel Logo" width={72} height={16} />
-          </span>
-        </a>
-      </footer>
-    </>
   );
 }
