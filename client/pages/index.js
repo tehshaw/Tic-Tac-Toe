@@ -7,11 +7,11 @@ export default function index() {
   return (
     <>
         <Box>
-            <Center boxSize="200px" fontSize="5em"><Link href='/game/single'>Offline</Link></Center>
+            <Center boxSize="200px" fontSize="5em"><Link href='/game/offline'>Offline</Link></Center>
         </Box>
             
         <Box>
-            <Center boxSize="200px" fontSize="5em"><Link href='/game/multi'>Online</Link></Center>
+            <Center boxSize="200px" fontSize="5em"><Link href='/game/online'>Online</Link></Center>
         </Box>
     </>
 

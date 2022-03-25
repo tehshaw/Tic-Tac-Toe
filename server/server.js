@@ -24,28 +24,31 @@ let singleRooms = []
 
 io.on("connection", (socket) => {
 
-    let myRoom = ''
+    console.log(socket.id + " connected")
 
-    if(singleRooms.length > 0){
-        myRoom = singleRooms[0]
-        socket.join(myRoom)
-        singleRooms.shift()
-        io.in(myRoom).emit('message', "Player " + socket.id + " joined the room.")
-        io.in(myRoom).emit('message', "Game will start momentarily.")
-        startGame(myRoom)
-        console.log(io.sockets.adapter.rooms)
-    }else{
-        myRoom = randomUUID()
-        singleRooms.push(myRoom)
-        socket.join(myRoom)
-        io.in(myRoom).emit('message', "Player " + socket.id + " joined room " + myRoom)
-        io.in(myRoom).emit('message', "Waiting for another player")
-        console.log(io.sockets.adapter.rooms)
-    }
+    // let myRoom = ''
+
+    // if(singleRooms.length > 0){
+    //     myRoom = singleRooms[0]
+    //     socket.join(myRoom)
+    //     singleRooms.shift()
+    //     io.in(myRoom).emit('message', "Player " + socket.id + " joined the room.")
+    //     io.in(myRoom).emit('message', "Game will start momentarily.")
+    //     startGame(myRoom)
+    //     console.log(io.sockets.adapter.rooms)
+    // }else{
+    //     myRoom = randomUUID()
+    //     singleRooms.push(myRoom)
+    //     socket.join(myRoom)
+    //     io.in(myRoom).emit('message', "Player " + socket.id + " joined room " + myRoom)
+    //     io.in(myRoom).emit('message', "Waiting for another player")
+    //     console.log(io.sockets.adapter.rooms)
+    // }
 
     socket.on('move', (args) =>{
         console.log(args)
-        io.in(args.room).emit('move', args.move)
+        let room = getRoom(socket.id)
+        io.in(room).emit('move', args.move)
     })
 
     socket.on('disconnect' , () => {
@@ -55,15 +58,14 @@ io.on("connection", (socket) => {
 });
 
 function startGame(room){
-    
 
+    
 }
 
 function getRoom(socketID){
     const arr = Array.from(io.sockets.adapter.rooms)
     const myRoom = arr.filter(room => room[0] !== socketID)
-    console.log(myRoom)
-    return users
+    return myRoom
 }
 
 
