@@ -50,6 +50,10 @@ export const playerTwo = (grid) => {
 
     const PCplay = Math.floor(Math.random()*nextPlays.length)
 
+    setInterval(() => {
+        
+    }, 3000);
+    
     return nextPlays[PCplay]
 
 }

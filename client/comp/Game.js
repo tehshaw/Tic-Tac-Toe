@@ -40,8 +40,6 @@ export default function Game({gameMode, socket}) {
       checkMove(args)
       whosTurn === "X" ? setWhosTurn('O') : setWhosTurn('X')
     })
-
-    return () => { if(socket) socket.disconnect()}
  
   }, [socket]);
 
@@ -91,7 +89,6 @@ export default function Game({gameMode, socket}) {
 
   return (
     <>
-
       <Heading mb="4">
         {gameOver ? (`${winner.current} won!`) : (`It is ${whosTurn}'s turn to play!`)}
       </Heading>
