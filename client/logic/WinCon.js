@@ -4,7 +4,7 @@ import { playerTwo } from "../logic/PlayerTwo";
 //the last player move as PLAYERMOVE, who made the last move as WHOSTURN and boolean to track single player game
 //this functions will check to see if the last played move caused a win con or not
 //it will also make a play for the NPC in a single player game
-export const checkWinCon = (grid, setGrid, playerMove, whosTurn, isOnePlayer) => {
+export const checkWinCon = (grid, setGrid, playerMove, whosTurn) => {
 
     
     const tempGrid = {...grid, [playerMove]:whosTurn}
@@ -37,18 +37,6 @@ export const checkWinCon = (grid, setGrid, playerMove, whosTurn, isOnePlayer) =>
         return "No one"
     }
 
-    //if during a single player game, the player move did not create a win con, create a move for the NPC and check its win con
-    if(isOnePlayer){
-        const pcMove = playerTwo(tempGrid)
-
-        tempGrid = {...tempGrid, [pcMove]:"O"}
-        setGrid({...tempGrid})
-
-        if(winner(tempGrid)){
-            return "The NPC"
-        }
-    }
-    
     //return null to not trigger win condition
     return ""
 

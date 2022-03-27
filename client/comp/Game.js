@@ -12,6 +12,7 @@ import {
 import { Box, Flex, Heading, Text, Center } from "@chakra-ui/layout";
 import { useEffect, useRef, useState } from "react";
 import { checkWinCon } from '../logic/WinCon'
+import { playerTwo } from '../logic/PlayerTwo';
 
 export default function Game({gameMode, socket}) {
   const { isOpen, onOpen, onClose } = useDisclosure()
@@ -38,10 +39,15 @@ export default function Game({gameMode, socket}) {
 
     socket.on('move', (args) => {
       checkMove(args)
-      whosTurn === "X" ? setWhosTurn('O') : setWhosTurn('X')
     })
  
   }, [socket]);
+
+  useEffect(() => {
+    if(isOnePlayer && whosTurn === 'O') {
+      let pcMove = setTimeout(() => checkMove(playerTwo(grid)), 1500)
+    }
+  },[whosTurn])
 
   const handleClick = (square) =>{
     //if game is already over, prevent any further board changes
@@ -68,22 +74,23 @@ export default function Game({gameMode, socket}) {
   }
 
 
-  const checkMove = (nextMove) => {
+  function checkMove(nextMove) {
     //if an empty square is selected, all empty squares are initalized as '' (empty string)
     //which will return a falsey statement to enter the if.
-      const isWinner = checkWinCon(grid, setGrid, nextMove, whosTurn, isOnePlayer)
+      const isWinner = checkWinCon(grid, setGrid, nextMove, whosTurn)
       if(isWinner){
         winner.current = isWinner
         onOpen()
         setGameOver(true)
-        return null
+        return;
       }
+      whosTurn === 'X' ? setWhosTurn('O') : setWhosTurn('X')
   }
 
   const startGame = (gameType) =>{
       setGameOver(false)
       setGrid(matchStart)
-      setWhosTurn("X") //// FIX HERE FOR MULTI PLAYER GAME
+      setWhosTurn('X') //// FIX HERE FOR MULTI PLAYER GAME
       gameType === "online" ? setIsOnePlayer(false) : setIsOnePlayer(true) 
   }
 
