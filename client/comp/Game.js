@@ -6,8 +6,8 @@ import {
   ModalFooter,
   ModalBody,
   ModalCloseButton,
-  Button,
   useDisclosure,
+  Button,
 } from '@chakra-ui/react'
 import { Box, Flex, Heading, Text, Center } from "@chakra-ui/layout";
 import { useEffect, useRef, useState } from "react";
@@ -26,22 +26,17 @@ export default function Game({gameMode, socket}) {
   const myMove = useRef('X')
 
   useEffect(() => {
-    startGame(gameMode)
-
+    startGame()
    },[])
 
   useEffect(() => {
     if(!socket) return; 
 
-    socket.on('message', (args) => {
-      console.log(args)
-    })
-
     socket.on('move', (args) => {
-      checkMove(args)
+      checkMove(args.move)
     })
  
-  }, [socket]);
+  }, []);
 
   useEffect(() => {
     if(isOnePlayer && whosTurn === 'O') {
@@ -49,16 +44,16 @@ export default function Game({gameMode, socket}) {
     }
   },[whosTurn])
 
-  const handleClick = (square) =>{
+  function handleClick(square){
     //if game is already over, prevent any further board changes
     if(gameOver){
       return;
     }
 
-    if(myMove.current !== whosTurn){
-      alert('It is not your turn yet!')
-      return;
-    }
+    // if(myMove.current !== whosTurn){
+    //   alert('It is not your turn yet!')
+    //   return;
+    // }
 
     if(grid[square]){
       grid[nextMove] === whosTurn ? alert("You already went there!") :
@@ -69,14 +64,14 @@ export default function Game({gameMode, socket}) {
     if(isOnePlayer){
       checkMove(square)
     }else{
-      socket.emit('move', { move : square })
+      socket.emit('move', { move : square }, (response) =>{
+        if(response.status) checkMove(square)
+      })
     }
   }
 
-
   function checkMove(nextMove) {
-    //if an empty square is selected, all empty squares are initalized as '' (empty string)
-    //which will return a falsey statement to enter the if.
+      console.log(whosTurn)
       const isWinner = checkWinCon(grid, setGrid, nextMove, whosTurn)
       if(isWinner){
         winner.current = isWinner
@@ -87,19 +82,20 @@ export default function Game({gameMode, socket}) {
       whosTurn === 'X' ? setWhosTurn('O') : setWhosTurn('X')
   }
 
-  const startGame = (gameType) =>{
+  function startGame(){
       setGameOver(false)
       setGrid(matchStart)
       setWhosTurn('X') //// FIX HERE FOR MULTI PLAYER GAME
-      gameType === "online" ? setIsOnePlayer(false) : setIsOnePlayer(true) 
+      gameMode === "online" ? setIsOnePlayer(false) : setIsOnePlayer(true) 
   }
 
   return (
     <>
+      {isOnePlayer && <Button onClick={() => startGame(gameMode)}>Retart</Button>}
       <Heading mb="4">
         {gameOver ? (`${winner.current} won!`) : (`It is ${whosTurn}'s turn to play!`)}
       </Heading>
-
+      <Button onClick={() => {console.log(whosTurn)}}>Whos turn</Button>
       <Flex flexWrap="wrap" alignItems="center" justifyContent="center" maxW="1000px">
 
         {Object.keys(grid).map(square => {

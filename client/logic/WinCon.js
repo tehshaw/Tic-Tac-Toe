@@ -1,9 +1,6 @@
-import { playerTwo } from "../logic/PlayerTwo";
-
 //accepts the current state of the game board as GRID, the state function of SETGRID
 //the last player move as PLAYERMOVE, who made the last move as WHOSTURN and boolean to track single player game
 //this functions will check to see if the last played move caused a win con or not
-//it will also make a play for the NPC in a single player game
 export const checkWinCon = (grid, setGrid, playerMove, whosTurn) => {
 
     

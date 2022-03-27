@@ -1,16 +1,20 @@
-import React, { useEffect, useState } from 'react';
+import React, { Suspense, useEffect, useState } from 'react';
+import { useRouter } from 'next/router';
 import io from "socket.io-client"; 
-import Game from '../../comp/Game';
+const Game = React.lazy(() => import( '../../comp/Game'))
 import { Box, Button, Center, Flex, Spacer } from '@chakra-ui/react';
 import styles from '../../styles/Lobby.module.css'
 
 export default function online() {
+    const router = useRouter()
     const [socket, setSocket] = useState(null);
     const [rooms, setRooms] = useState(null)
     const [inLobby, setInLobby] = useState(true)
 
-    useEffect(async ()  => {
+    useEffect( ()  => {
+
         setSocket(io('http://localhost:3001'));
+        console.log('connect to server')
 
         return () => { if(socket) socket.disconnect()}
     },[])
@@ -25,19 +29,18 @@ export default function online() {
         socket.on('connect_error', () => {
           console.log('Unable to reach server. Online mode not avialable.')
           socket.disconnect();
-          setSocket(null)
+        //   setSocket(null)
         //   alert("Disconnected from server. Redirecting to home page.")
         //   router.push('/')
         })
         socket.on('disconnect', () => {
           console.log("Disconnected from server")
-          setSocket(null)
+        //   setSocket(null)
         //   alert("Disconnected from server. Redirecting to home page.")
         //   router.push('/')
         });
 
         socket.on('rooms', (args) => {
-            console.log(args)
             setRooms(args)
         })
 
@@ -52,13 +55,13 @@ export default function online() {
     return (
  
         <div>
-            <Flex flexWrap='warp' maxW='1000px' padding='1rem'>
-                <Box flexBasis='35%'>
+            <Flex className={styles.menu} justifyContent={{base:"center", md: "space-between"}} flexWrap='warp' padding='1rem'>
+                <Box>
                     Connection Status:{socket ? ' Connected' : ' Not Connected'}
                 </Box>
-                <Spacer />
                 <Box>
                     <Button onClick={() => socket.emit('report')}>Debug</Button>
+                    <Button onClick={() => socket.connect()}>Connect</Button>
                 </Box>
             </Flex>
 
@@ -80,7 +83,10 @@ export default function online() {
 
 
                                         <Button className={styles.button} border='2px'
-                                            onClick={() => socket.disconnect()}
+                                            onClick={() => {
+                                                socket.disconnect()
+                                                router.push('/')
+                                            }}
                                         >
                                             Disconnect
                                         </Button>
@@ -111,20 +117,22 @@ export default function online() {
                                         })}
                                     </Flex>
                                 ):(
-                                    <Game gameMode={'online'} socket={socket} />
+                                    <div className={styles.main}>
+                                        <Suspense fallback={<h1>Loading room...</h1>}>
+                                            {!inLobby && <Game gameMode={'online'} socket={socket} />}
+                                        </Suspense>
+                                    </div>
                                 )}
   
 
                             </>
                         ):(
-                            <Center>
-                                <h1>Loading Rooms...</h1>
-                            </Center>
+                            <h1 className={styles.main}>Loading Rooms...</h1>
                         )}
                     </>
                 ):(
                     <>
-                        <h1>No server connection!</h1>
+                        <h1 className={styles.main}>No server connection!</h1>
                     </>
                 )}
             {/* <Game gameMode={'online'} socket={socket} /> */}

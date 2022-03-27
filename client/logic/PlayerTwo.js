@@ -1,5 +1,4 @@
 
-
 export const playerTwo = (grid) => {
 
     //all possible win combos, will be used to check states of these for possible moves

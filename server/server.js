@@ -4,6 +4,7 @@ const socketIO= require("socket.io");
 const cors = require('cors')
 const { randomUUID } = require('crypto');
 const { Console } = require("console");
+const { ok } = require("assert");
 
 const app = express();
 app.use(cors())
@@ -27,8 +28,6 @@ io.on("connection", (socket) => {
 
     socket.emit('rooms', getActiveRooms())
 
-    // let myRoom = ''
-
     // if(singleRooms.length > 0){
     //     myRoom = singleRooms[0]
     //     socket.join(myRoom)
@@ -46,10 +45,12 @@ io.on("connection", (socket) => {
     //     console.log(io.sockets.adapter.rooms)
     // }
 
-    socket.on('move', (args) =>{
-        console.log(args)
-        let room = getMyRoom(socket.id)
-        io.in(room).emit('move', args.move)
+    socket.on('move', (args, callback) =>{
+        let room = getMyRoom(socket)
+        socket.to(room).emit('move', args)
+        callback({
+            status: 'received move'
+        })
     })
 
     socket.on('disconnect' , () => {
@@ -60,7 +61,7 @@ io.on("connection", (socket) => {
         let newRoom = randomUUID()
         socket.join(newRoom)
         console.log(socket.id + " created new room. ROOM: " + newRoom)
-        io.emit('rooms', getActiveRooms())
+        socket.broadcast.emit('rooms', getActiveRooms())
     })
 
     socket.on('leave', () => {
@@ -70,8 +71,11 @@ io.on("connection", (socket) => {
     })
 
     socket.on('report', () => {
-        socket.emit('message', getActiveRooms())
-        socket.emit('message', socket.rooms)
+        socket.emit('message', {activeRooms: '', rooms:getActiveRooms()})
+        socket.emit('message', {gameRooms: '', rooms:getMyRoom(socket)})
+        socket.emit('message', {socketRooms: '' , rooms:Array.from(socket.rooms)})
+        socket.emit('message', {allRooms: '', rooms: Array.from(io.sockets.adapter.rooms)})
+        socket.emit('message', {allUsers: '', rooms: Array.from(io.sockets.adapter.sids)})
     })
 
 });
@@ -86,15 +90,15 @@ function getActiveRooms() {
     const filtered = arr.filter(room => !room[1].has(room[0]))
     const res = filtered.filter(i => i[1].size === 1);
     const r = res.map(r => r[0])
-    console.log("all rooms", res)
+    // console.log("all rooms", res)
     return r;
 }
 
 function getMyRoom(socket){
     const rooms = Array.from(socket.rooms)
-    console.log(...rooms, socket.id)
+    // console.log(rooms, socket.id)
     const myRoom = rooms.filter(room => room !== socket.id)
-    console.log("myRoom", myRoom)
+    // console.log("myRoom", myRoom)
     return myRoom
 }
 
