@@ -41,19 +41,13 @@ export const playerTwo = (grid) => {
     let nextPlays = [] 
 
     //break the sets up from their key/value pairs into an array that can be used to RNG the move.
-    winPlays.size == 0 ? 
-        blockPlays.size == 0 ? 
+    winPlays.size === 0 ? 
+        blockPlays.size === 0 ? 
             plays.forEach((value)=> nextPlays.push(value)) : 
             blockPlays.forEach((value)=> nextPlays.push(value)) :
             winPlays.forEach((value)=> nextPlays.push(value))
 
     const PCplay = Math.floor(Math.random()*nextPlays.length)
-
-    setInterval(() => {
-        
-    }, 3000);
-    
-    return nextPlays[PCplay]
 
 }
 
