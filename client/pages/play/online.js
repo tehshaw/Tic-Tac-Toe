@@ -29,9 +29,9 @@ export default function online() {
         socket.on('connect_error', () => {
           console.log('Unable to reach server. Online mode not avialable.')
           socket.disconnect();
-        //   setSocket(null)
-        //   alert("Disconnected from server. Redirecting to home page.")
-        //   router.push('/')
+          setSocket(null)
+          alert("Disconnected from server. Redirecting to home page.")
+          router.push('/')
         })
         socket.on('disconnect', () => {
           console.log("Disconnected from server")
@@ -62,7 +62,10 @@ export default function online() {
                     Connection Status:{socket ? ' Connected' : ' Not Connected'}
                 </Box>
                 <Box>
-                    <Button onClick={() => socket.emit('report')}>Debug</Button>
+                    <Button onClick={() => {
+                        socket.emit('report')
+                        console.log(socket._callbacks)
+                    }}>Debug</Button>
                     <Button onClick={() => socket.connect()}>Connect</Button>
                 </Box>
             </Flex>

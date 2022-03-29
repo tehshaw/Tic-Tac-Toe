@@ -28,14 +28,17 @@ io.on("connection", (socket) => {
 
     socket.on('join', (args) =>{
         socket.join(args.room)
-        socket.to(args.room).emit(socket.id + " has joined the room")
+        socket.to(args.room).emit('message', socket.id + " has joined the room")
         console.log(`socket ${socket.id} has joined room ${args.room}`);
+        startGame(args.room)
+
+
     })
 
     socket.on('move', function (args, callback) {
         console.log(args)
         let room = getMyRoom(socket)
-        socket.to(room).emit('move', args)
+        io.in(room).emit('move', args)
         callback({
             status: 'received move'
         })
@@ -43,6 +46,7 @@ io.on("connection", (socket) => {
 
     socket.on('disconnect' , () => {
         console.log('User ' + socket.id + ' disconnected')
+        socket.emit('rooms', getActiveRooms())
     })
 
     socket.on('create', () => {
@@ -63,15 +67,28 @@ io.on("connection", (socket) => {
         socket.emit('message', {activeRooms: '', rooms:getActiveRooms()})
         socket.emit('message', {gameRooms: '', rooms:getMyRoom(socket)})
         socket.emit('message', {socketRooms: '' , rooms:Array.from(socket.rooms)})
-        socket.emit('message', {allRooms: '', rooms: Array.from(io.sockets.adapter.rooms)})
         socket.emit('message', {allUsers: '', rooms: Array.from(io.sockets.adapter.sids)})
-        socket.emit('message', {sockets: '', rooms: Array.from(io.sockets.adapter.sockets)})
+        socket.emit('message', (Array.from(io.sockets.adapter.rooms)))
     })
 
 });
 
-function startGame(room){
-
+async function startGame(room){
+    const players = await io.in(room).fetchSockets()
+    const playerX = Math.floor(Math.random()*2)
+    setTimeout(() => {
+        io.in(room).emit('ready')
+        setTimeout(() => {
+            if(playerX === 0){
+                io.to(players[0].id).emit('myMove', 'X')
+                io.to(players[1].id).emit('myMove', 'O')
+            }else{
+                io.to(players[1].id).emit('myMove', 'X')
+                io.to(players[0].id).emit('myMove', 'O')
+            }
+        }, 2000);
+    }, 1000);
+    
 
 }
 

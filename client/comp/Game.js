@@ -22,22 +22,34 @@ export default function Game({gameMode, socket}) {
   const [whosTurn, setWhosTurn] = useState('')
   const [isOnePlayer, setIsOnePlayer] = useState(false)
   const [gameOver, setGameOver] = useState(false)
+  const [gameInfo, setGameInfo] = useState('Waiting for another player to connect....')
+  const [myMove, setMyMove] = useState('')
 
   const winner = useRef();
-  const myMove = useRef('X')
 
   useEffect(() => {
     startGame()
+    socket.once('ready', (args) => {
+      setGameInfo('Both players in room. Game will start shortly.....')
+    })
+
+    socket.once('myMove', args => {
+      alert(`You will be playing as "${args}"`)
+      setMyMove(args)
+      setGrid(matchStart)
+    })
    },[])
 
   useEffect(() => {
-    if(!socket) return; 
+    if(!socket) return;
 
-    socket.once('move', (args) => {
+    socket.on('move', (args) => {
       console.log("new move received", args)
+      socket.off('move') //required to ensure multiple listeners are not added on every re-render
       checkMove(args.move, args.player, grid)
-      socket.off('move')
     })
+
+    console.log(socket._callbacks.$move)
  
   }, [socket, grid]);
 
@@ -53,10 +65,10 @@ export default function Game({gameMode, socket}) {
       return;
     }
 
-    // if(myMove.current !== whosTurn){
-    //   alert('It is not your turn yet!')
-    //   return;
-    // }
+    if(myMove !== whosTurn){
+      alert('It is not your turn yet!')
+      return;
+    }
 
     if(grid[square]){
       grid[square] === whosTurn ? alert("You already went there!") :
@@ -68,8 +80,7 @@ export default function Game({gameMode, socket}) {
       checkMove(square)
     }else{
       socket.emit('move', { move : square, player: whosTurn }, () =>{
-          console.log(`Server received move ${square} for player ${whosTurn}`)
-          checkMove(square)
+          console.log(`Sent server move ${square} for player ${whosTurn}`)
       })
     }
   }
@@ -86,34 +97,40 @@ export default function Game({gameMode, socket}) {
   }
 
   function startGame(){
-    console.log("run game start")
       setGameOver(false)
       setGrid(matchStart)
       setWhosTurn('X') //// FIX HERE FOR MULTI PLAYER GAME
-      gameMode === "online" ? setIsOnePlayer(false) : setIsOnePlayer(true) 
+      if(gameMode === 'offline'){
+        setIsOnePlayer(true)
+        setMyMove('X')
+      }else{
+        setIsOnePlayer(false)
+      }
   }
 
   return (
     <>
       {isOnePlayer && <Button onClick={() => startGame(gameMode)}>Retart</Button>}
-      <Heading mb="4">
-        {gameOver ? (`${winner.current} won!`) : (`It is ${whosTurn}'s turn to play!`)}
-      </Heading>
-      <Flex flexWrap="wrap" alignItems="center" justifyContent="center" maxW="1000px">
+      {myMove ? (<>
+          <Heading mb="4">
+            {gameOver ? (`${winner.current} won!`) : (`It is ${whosTurn}'s turn to play!`)}
+          </Heading>
+          <Flex flexWrap="wrap" alignItems="center" justifyContent="center" maxW="1000px">
 
-        {Object.keys(grid).map(square => {
-          return (<>
-            <Box as="button" p="1" borderWidth='5px' borderColor="grey" boxSize="12em" backgroundColor="" flexBasis="30%"
-              onClick={() => handleClick(`${square}`)} key={square}
-            >
-                <Text fontSize="5em">{grid[square]}</Text>
-            </Box>
-            </>
-          )
-        })}
-      
-      </Flex>
-
+            {Object.keys(grid).map(square => {
+              return (<>
+                <Box as="button" p="1" borderWidth='5px' borderColor="grey" boxSize="12em" backgroundColor="" flexBasis="30%"
+                  onClick={() => handleClick(`${square}`)} key={square}
+                >
+                    <Text fontSize="5em">{grid[square]}</Text>
+                </Box>
+                </>
+              )
+            })}
+          
+          </Flex>
+      </>):
+            (<Heading>{gameInfo}</Heading>)}
     <>
       <Modal isOpen={isOpen} onClose={onClose} isCentered>
         <ModalOverlay />
@@ -132,6 +149,7 @@ export default function Game({gameMode, socket}) {
         </ModalContent>
       </Modal>
     </>
+
 
   </>
 
