@@ -29,6 +29,9 @@ export default function Game({gameMode, socket}) {
 
   useEffect(() => {
     startGame()
+
+    if(!socket) return;
+
     socket.once('ready', (args) => {
       setGameInfo('Both players in room. Game will start shortly.....')
     })
@@ -38,6 +41,7 @@ export default function Game({gameMode, socket}) {
       setMyMove(args)
       setGrid(matchStart)
     })
+
    },[])
 
   useEffect(() => {
@@ -58,6 +62,7 @@ export default function Game({gameMode, socket}) {
       let pcMove = setTimeout(() => checkMove(playerTwo(grid)), 1500)
     }
   },[whosTurn])
+  
 
   function handleClick(square){
     //if game is already over, prevent any further board changes
@@ -99,7 +104,7 @@ export default function Game({gameMode, socket}) {
   function startGame(){
       setGameOver(false)
       setGrid(matchStart)
-      setWhosTurn('X') //// FIX HERE FOR MULTI PLAYER GAME
+      setWhosTurn('X')
       if(gameMode === 'offline'){
         setIsOnePlayer(true)
         setMyMove('X')
@@ -110,8 +115,9 @@ export default function Game({gameMode, socket}) {
 
   return (
     <>
-      {isOnePlayer && <Button onClick={() => startGame(gameMode)}>Retart</Button>}
+      {isOnePlayer && <Button onClick={() => startGame()}>Retart</Button>}
       {myMove ? (<>
+          <Heading bg='green.800' p='2' borderRadius={'10px'}>You are playing as {myMove}</Heading>
           <Heading mb="4">
             {gameOver ? (`${winner.current} won!`) : (`It is ${whosTurn}'s turn to play!`)}
           </Heading>

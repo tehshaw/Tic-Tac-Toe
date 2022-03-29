@@ -31,8 +31,6 @@ io.on("connection", (socket) => {
         socket.to(args.room).emit('message', socket.id + " has joined the room")
         console.log(`socket ${socket.id} has joined room ${args.room}`);
         startGame(args.room)
-
-
     })
 
     socket.on('move', function (args, callback) {
@@ -58,6 +56,7 @@ io.on("connection", (socket) => {
 
     socket.on('leave', () => {
         let myRoom = getMyRoom(socket)
+        socket.to(myRoom).emit('message', `${socket.id} has left the game.`)
         io.in(socket.id).socketsLeave(myRoom)
         io.emit('rooms', getActiveRooms())
     })
