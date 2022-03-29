@@ -10,11 +10,11 @@ export default function index() {
     <div className={styles.main}>
     <>
         <Box>
-            <Center boxSize="200px" fontSize="5em"><Link href='/play/offline'>Offline</Link></Center>
+            <Center fontSize="5em" m='10px'><Link href='/play/offline'>Play NPC</Link></Center>
         </Box>
             
         <Box>
-            <Center boxSize="200px" fontSize="5em"><Link href='/play/online'>Online</Link></Center>
+            <Center fontSize="5em" m='10px'><Link href='/play/online'>Play Online</Link></Center>
         </Box>
     </>
     </div>

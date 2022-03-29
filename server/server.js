@@ -3,6 +3,8 @@ const http = require("http");
 const socketIO= require("socket.io");
 const cors = require('cors')
 const { randomUUID } = require('crypto');
+const {colors} = require("./colors");
+const {animals} = require("./animals");
 
 const app = express();
 app.use(cors())
@@ -42,23 +44,27 @@ io.on("connection", (socket) => {
         })
     })
 
+    socket.on("disconnecting", () => {
+        console.log(socket.rooms);
+        if(socket.rooms.size > 1) leaveEarly(socket)
+
+    });
+
     socket.on('disconnect' , () => {
         console.log('User ' + socket.id + ' disconnected')
-        socket.emit('rooms', getActiveRooms())
     })
 
     socket.on('create', () => {
-        let newRoom = randomUUID()
+        let rando = [Math.floor(Math.random()*100), Math.floor(Math.random()*100)]
+        let newRoom = `A ${colors[rando[0]]} ${animals[rando[1]]}`
         socket.join(newRoom)
         console.log(socket.id + " created new room. ROOM: " + newRoom)
         socket.broadcast.emit('rooms', getActiveRooms())
     })
 
     socket.on('leave', () => {
-        let myRoom = getMyRoom(socket)
-        socket.to(myRoom).emit('message', `${socket.id} has left the game.`)
-        io.in(socket.id).socketsLeave(myRoom)
-        io.emit('rooms', getActiveRooms())
+        leaveEarly(socket)
+        socket.emit('rooms', getActiveRooms())
     })
 
     socket.on('report', () => {
@@ -71,6 +77,17 @@ io.on("connection", (socket) => {
     })
 
 });
+
+async function leaveEarly(socket){
+    let myRoom = getMyRoom(socket)
+    const players = await io.in(myRoom).fetchSockets()
+    if(players.length > 1){
+        let opp = players.filter(player => player.id !== socket.id)
+        socket.to(myRoom).emit('message', `${socket.id} has left the game.`)
+        io.to(opp[0].id).emit('eBrake')
+    }
+    io.in(myRoom).socketsLeave(myRoom)
+}
 
 async function startGame(room){
     const players = await io.in(room).fetchSockets()
@@ -87,8 +104,6 @@ async function startGame(room){
             }
         }, 2000);
     }, 1000);
-    
-
 }
 
 function getActiveRooms() {

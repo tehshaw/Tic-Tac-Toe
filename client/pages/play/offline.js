@@ -5,7 +5,7 @@ import Game from '../../comp/Game'
 export default function offline() {
   return (
         <Wrapper>
-            <Game gameMode={'offline'} socket={null} />
+            <Game gameMode={'offline'} />
         </Wrapper>
     )
 }

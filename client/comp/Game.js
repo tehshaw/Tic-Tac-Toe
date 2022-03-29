@@ -14,7 +14,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { checkWinCon } from '../logic/WinCon'
 import { playerTwo } from '../logic/PlayerTwo';
 
-export default function Game({gameMode, socket}) {
+export default function Game({gameMode, socket = null, inLobby = null}) {
   const matchStart = {one:"", two:"", three:"", four:"", five:"", six:"", seven:"", eight:"", nine:""}
 
   const { isOpen, onOpen, onClose } = useDisclosure()
@@ -37,9 +37,15 @@ export default function Game({gameMode, socket}) {
     })
 
     socket.once('myMove', args => {
-      alert(`You will be playing as "${args}"`)
+      setGameInfo(`You will be playing as "${args}"`)
+      onOpen()
       setMyMove(args)
       setGrid(matchStart)
+    })
+
+    socket.once('eBrake', (args) =>{
+      alert('The other player disconnected. Returning to Lobby....')
+      inLobby(true)
     })
 
    },[])
@@ -48,7 +54,6 @@ export default function Game({gameMode, socket}) {
     if(!socket) return;
 
     socket.on('move', (args) => {
-      console.log("new move received", args)
       socket.off('move') //required to ensure multiple listeners are not added on every re-render
       checkMove(args.move, args.player, grid)
     })
@@ -62,7 +67,7 @@ export default function Game({gameMode, socket}) {
       let pcMove = setTimeout(() => checkMove(playerTwo(grid)), 1500)
     }
   },[whosTurn])
-  
+
 
   function handleClick(square){
     //if game is already over, prevent any further board changes
@@ -94,6 +99,7 @@ export default function Game({gameMode, socket}) {
       const isWinner = checkWinCon(myGrid, setGrid, nextMove, player)
       if(isWinner){
         winner.current = isWinner
+        setGameInfo(`${winner.current} has won!`)
         onOpen()
         setGameOver(true)
         return;
@@ -117,7 +123,7 @@ export default function Game({gameMode, socket}) {
     <>
       {isOnePlayer && <Button onClick={() => startGame()}>Retart</Button>}
       {myMove ? (<>
-          <Heading bg='green.800' p='2' borderRadius={'10px'}>You are playing as {myMove}</Heading>
+          <Heading bg='blue.600' p='2' borderRadius={'10px'}>You are playing as {myMove}</Heading>
           <Heading mb="4">
             {gameOver ? (`${winner.current} won!`) : (`It is ${whosTurn}'s turn to play!`)}
           </Heading>
@@ -141,10 +147,10 @@ export default function Game({gameMode, socket}) {
       <Modal isOpen={isOpen} onClose={onClose} isCentered>
         <ModalOverlay />
         <ModalContent>
-          <ModalHeader>Game Over!</ModalHeader>
+          <ModalHeader>Tic-Tac-Toe</ModalHeader>
           <ModalCloseButton />
           <ModalBody>
-            <Center>{winner.current} won!</Center>
+            <Center>{gameInfo}</Center>
           </ModalBody>
 
           <ModalFooter>
