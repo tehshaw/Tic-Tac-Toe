@@ -47,7 +47,6 @@ io.on("connection", (socket) => {
     socket.on("disconnecting", () => {
         console.log(socket.rooms);
         if(socket.rooms.size > 1) leaveEarly(socket)
-
     });
 
     socket.on('disconnect' , () => {

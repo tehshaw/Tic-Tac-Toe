@@ -112,6 +112,7 @@ export default function online() {
                       border="2px"
                       onClick={() => {
                         socket.emit("leave");
+                        socket.off("move")
                         setInLobby(true);
                       }}
                     >

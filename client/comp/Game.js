@@ -53,12 +53,17 @@ export default function Game({gameMode, socket = null, inLobby = null}) {
   useEffect(() => {
     if(!socket) return;
 
+    // when a player makes a move in an online game, the move is sent to the server then sent back to each
+    //client at the same time, checkMove is run to see if that move would create a win and changes whos turn
+    //it is on each client. The server has no logic of turn order or move state.
     socket.on('move', (args) => {
       socket.off('move') //required to ensure multiple listeners are not added on every re-render
+      console.log(`Received move ${args.move} for player ${args.player}`)
       checkMove(args.move, args.player, grid)
     })
 
-    console.log(socket._callbacks.$move)
+    //used to monitor how many instances of the 'move' listener are currently mounted
+    // console.log(socket._callbacks.$move)
  
   }, [socket, grid]);
 
@@ -75,11 +80,13 @@ export default function Game({gameMode, socket = null, inLobby = null}) {
       return;
     }
 
+    // if its not your turn, prevent changes to the game board
     if(myMove !== whosTurn){
       alert('It is not your turn yet!')
       return;
     }
 
+    // if a square is clicked that has already has a move, prevent over-writes
     if(grid[square]){
       grid[square] === whosTurn ? alert("You already went there!") :
       alert(grid[square] + " already went there!")
@@ -87,8 +94,9 @@ export default function Game({gameMode, socket = null, inLobby = null}) {
     }
 
     if(isOnePlayer){
-      checkMove(square)
+      checkMove(square) // if its a one player game, call checkmove to validate winCon and change player turn
     }else{
+      // send to sever the valid move and who made it, sending player as well to help prevent stale states
       socket.emit('move', { move : square, player: whosTurn }, () =>{
           console.log(`Sent server move ${square} for player ${whosTurn}`)
       })
