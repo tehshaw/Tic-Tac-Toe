@@ -14,7 +14,7 @@ export default function online() {
     useEffect( ()  => {
 
         setSocket(io('http://localhost:3001'));
-        console.log('connect to server')
+        console.log('Connecting to server...')
 
         return () => { if(socket) socket.disconnect()}
     },[])
@@ -41,17 +41,19 @@ export default function online() {
         });
 
         socket.on('rooms', (args) => {
-            setRooms(args)
+            if(inLobby) setRooms(args)
         })
 
         socket.on('message', (args) => {
             console.log(args)
           })
 
-        return () => { if(socket) socket.disconnect()}
-
       }, [socket])
 
+    function joinRoom(room){
+        socket.emit('join', {room:room})
+        setInLobby(false)
+    }
     return (
  
         <div>
@@ -110,7 +112,9 @@ export default function online() {
                                     <Flex flexWrap='wrap' maxW='1000px' margin='2rem'>
                                         {rooms.map(room =>{
                                             return (<>
-                                            <Box as='button' border='2px' borderRadius='md' m={4} boxSize='10rem'>
+                                            <Box as='button' border='2px' borderRadius='md' m={4} boxSize='10rem'
+                                                onClick={() => joinRoom(room)}
+                                            >
                                                 {room}
                                             </Box>
                                             </>)

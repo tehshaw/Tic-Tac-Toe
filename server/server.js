@@ -3,8 +3,6 @@ const http = require("http");
 const socketIO= require("socket.io");
 const cors = require('cors')
 const { randomUUID } = require('crypto');
-const { Console } = require("console");
-const { ok } = require("assert");
 
 const app = express();
 app.use(cors())
@@ -28,24 +26,14 @@ io.on("connection", (socket) => {
 
     socket.emit('rooms', getActiveRooms())
 
-    // if(singleRooms.length > 0){
-    //     myRoom = singleRooms[0]
-    //     socket.join(myRoom)
-    //     singleRooms.shift()
-    //     io.in(myRoom).emit('message', "Player " + socket.id + " joined the room.")
-    //     io.in(myRoom).emit('message', "Game will start momentarily.")
-    //     startGame(myRoom)
-    //     console.log(io.sockets.adapter.rooms)
-    // }else{
-    //     myRoom = randomUUID()
-    //     singleRooms.push(myRoom)
-    //     socket.join(myRoom)
-    //     io.in(myRoom).emit('message', "Player " + socket.id + " joined room " + myRoom)
-    //     io.in(myRoom).emit('message', "Waiting for another player")
-    //     console.log(io.sockets.adapter.rooms)
-    // }
+    socket.on('join', (args) =>{
+        socket.join(args.room)
+        socket.to(args.room).emit(socket.id + " has joined the room")
+        console.log(`socket ${socket.id} has joined room ${args.room}`);
+    })
 
-    socket.on('move', (args, callback) =>{
+    socket.on('move', function (args, callback) {
+        console.log(args)
         let room = getMyRoom(socket)
         socket.to(room).emit('move', args)
         callback({
@@ -71,11 +59,13 @@ io.on("connection", (socket) => {
     })
 
     socket.on('report', () => {
+        console.log(socket._events)
         socket.emit('message', {activeRooms: '', rooms:getActiveRooms()})
         socket.emit('message', {gameRooms: '', rooms:getMyRoom(socket)})
         socket.emit('message', {socketRooms: '' , rooms:Array.from(socket.rooms)})
         socket.emit('message', {allRooms: '', rooms: Array.from(io.sockets.adapter.rooms)})
         socket.emit('message', {allUsers: '', rooms: Array.from(io.sockets.adapter.sids)})
+        socket.emit('message', {sockets: '', rooms: Array.from(io.sockets.adapter.sockets)})
     })
 
 });

@@ -3,7 +3,6 @@
 //this functions will check to see if the last played move caused a win con or not
 export const checkWinCon = (grid, setGrid, playerMove, whosTurn) => {
 
-    
     const tempGrid = {...grid, [playerMove]:whosTurn}
 
     function winner(tempGrid){

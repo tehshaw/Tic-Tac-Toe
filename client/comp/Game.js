@@ -10,13 +10,14 @@ import {
   Button,
 } from '@chakra-ui/react'
 import { Box, Flex, Heading, Text, Center } from "@chakra-ui/layout";
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { checkWinCon } from '../logic/WinCon'
 import { playerTwo } from '../logic/PlayerTwo';
 
 export default function Game({gameMode, socket}) {
+  const matchStart = {one:"", two:"", three:"", four:"", five:"", six:"", seven:"", eight:"", nine:""}
+
   const { isOpen, onOpen, onClose } = useDisclosure()
-  const matchStart = {one:"", two:"", three:"", four:"", five:"", six:"", seven:"", eight:"", nine:"",}
   const [grid, setGrid] = useState(matchStart)
   const [whosTurn, setWhosTurn] = useState('')
   const [isOnePlayer, setIsOnePlayer] = useState(false)
@@ -32,11 +33,13 @@ export default function Game({gameMode, socket}) {
   useEffect(() => {
     if(!socket) return; 
 
-    socket.on('move', (args) => {
-      checkMove(args.move)
+    socket.once('move', (args) => {
+      console.log("new move received", args)
+      checkMove(args.move, args.player, grid)
+      socket.off('move')
     })
  
-  }, []);
+  }, [socket, grid]);
 
   useEffect(() => {
     if(isOnePlayer && whosTurn === 'O') {
@@ -56,33 +59,34 @@ export default function Game({gameMode, socket}) {
     // }
 
     if(grid[square]){
-      grid[nextMove] === whosTurn ? alert("You already went there!") :
-      alert(grid[nextMove] + " already went there!")
+      grid[square] === whosTurn ? alert("You already went there!") :
+      alert(grid[square] + " already went there!")
       return;
     }
 
     if(isOnePlayer){
       checkMove(square)
     }else{
-      socket.emit('move', { move : square }, (response) =>{
-        if(response.status) checkMove(square)
+      socket.emit('move', { move : square, player: whosTurn }, () =>{
+          console.log(`Server received move ${square} for player ${whosTurn}`)
+          checkMove(square)
       })
     }
   }
 
-  function checkMove(nextMove) {
-      console.log(whosTurn)
-      const isWinner = checkWinCon(grid, setGrid, nextMove, whosTurn)
+  function checkMove(nextMove, player = whosTurn, myGrid = grid) {
+      const isWinner = checkWinCon(myGrid, setGrid, nextMove, player)
       if(isWinner){
         winner.current = isWinner
         onOpen()
         setGameOver(true)
         return;
       }
-      whosTurn === 'X' ? setWhosTurn('O') : setWhosTurn('X')
+      player === 'X' ? setWhosTurn('O') : setWhosTurn('X')
   }
 
   function startGame(){
+    console.log("run game start")
       setGameOver(false)
       setGrid(matchStart)
       setWhosTurn('X') //// FIX HERE FOR MULTI PLAYER GAME
@@ -95,7 +99,6 @@ export default function Game({gameMode, socket}) {
       <Heading mb="4">
         {gameOver ? (`${winner.current} won!`) : (`It is ${whosTurn}'s turn to play!`)}
       </Heading>
-      <Button onClick={() => {console.log(whosTurn)}}>Whos turn</Button>
       <Flex flexWrap="wrap" alignItems="center" justifyContent="center" maxW="1000px">
 
         {Object.keys(grid).map(square => {
