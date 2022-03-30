@@ -12,7 +12,7 @@ export default function online() {
   const [inLobby, setInLobby] = useState(true);
 
   useEffect(() => {
-    setSocket(io("http://localhost:3001"));
+    setSocket(io());
     console.log("Connecting to server...");
 
     return () => {
@@ -111,9 +111,9 @@ export default function online() {
                       className={styles.button}
                       border="2px"
                       onClick={() => {
+                        setInLobby(true);
                         socket.emit("leave");
                         socket.off("move")
-                        setInLobby(true);
                       }}
                     >
                       Leave Game

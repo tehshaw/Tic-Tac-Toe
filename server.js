@@ -75,7 +75,6 @@ main.prepare().then(() => {
 
         socket.on('leave', () => {
             leaveEarly(socket)
-            socket.emit('rooms', getActiveRooms())
         })
 
         socket.on('report', () => {
@@ -100,6 +99,7 @@ async function leaveEarly(socket){
         io.to(opp[0].id).emit('eBrake')
     }
     io.in(myRoom).socketsLeave(myRoom)
+    io.emit('rooms', getActiveRooms())
 }
 
 async function startGame(room){
