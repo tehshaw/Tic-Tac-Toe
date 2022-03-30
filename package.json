@@ -2,11 +2,24 @@
   "name": "tic-tac-toe",
   "private": true,
   "scripts": {
-
+    "dev": "node server.js",
+    "build": "next build",
+    "start": "cross-env NODE_ENV=production node server.js"
   },
   "dependencies": {
+    "@chakra-ui/react": "^1.7.2",
+    "@emotion/react": "^11.7.0",
+    "@emotion/styled": "^11.6.0",
+    "framer-motion": "^4.1.17",
+    "next": "12.0.7",
+    "react": "17.0.2",
+    "react-dom": "17.0.2",
+    "socket.io-client": "^4.4.1",
+    "express": "^4.17.3",
+    "socket.io": "^4.4.1"
   },
   "devDependencies": {
+    "cross-env": "^7.0.3",
     "eslint": "8.4.1",
     "eslint-config-next": "12.0.7"
   }
