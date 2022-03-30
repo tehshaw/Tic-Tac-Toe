@@ -5,7 +5,7 @@ const Game = React.lazy(() => import("../../comp/Game"));
 import { Box, Button, Center, Flex, Spacer } from "@chakra-ui/react";
 import styles from "../../styles/Lobby.module.css";
 
-export default function online() {
+export default function Online() {
   const router = useRouter();
   const [socket, setSocket] = useState(null);
   const [rooms, setRooms] = useState(null);
@@ -18,6 +18,7 @@ export default function online() {
     return () => {
       if (socket) socket.disconnect();
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   useEffect(() => {
@@ -48,12 +49,15 @@ export default function online() {
     socket.on("message", (args) => {
       console.log(args);
     });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [socket]);
 
   function joinRoom(room) {
     socket.emit("join", { room: room });
     setInLobby(false);
   }
+
+  
   return (
     <div>
       <Flex
