@@ -129,7 +129,7 @@ export default function Game({gameMode, socket = null, inLobby = null}) {
 
   return (
     <>
-      {isOnePlayer && <Button onClick={() => startGame()}>Retart</Button>}
+      {isOnePlayer && <Button onClick={() => startGame()}>Restart</Button>}
       {myMove ? (<>
           <Heading bg='blue.600' p='2' borderRadius={'10px'}>You are playing as {myMove}</Heading>
           <Heading mb="4">

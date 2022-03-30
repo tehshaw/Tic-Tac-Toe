@@ -6,7 +6,7 @@ const cors = require('cors')
 const {colors} = require("./data/colors");
 const {animals} = require("./data/animals");
 
-const port = process.env.port || 3001
+const port = process.env.PORT || 3001
 const dev = process.env.NODE_ENV !== 'production'
 const main = next({ dev })
 const handle = main.getRequestHandler()
