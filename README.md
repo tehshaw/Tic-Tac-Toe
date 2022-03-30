@@ -1,9 +1,22 @@
-## Tic-Tac-Toe
+# Tic-Tac-Toe
 
-I built this app as just a fun experiment to try our [Next.js](https://nextjs.org/) framework and [Chakra.js](https://chakra-ui.com/) UI. 
-I really enjoyed working with Chakra. The component integration is very easy. I will be using it again in future projects!
+## Description
+
+The application is your classic Tic-Tac-Toe game. With the ability to play aganist a computer that will try to win and block you from doing so. The application also has an online option where you can create and/or join a room with another player to play. 
+
+I built this app using [Next.js](https://nextjs.org/) framework and [Chakra UI](https://chakra-ui.com/) for the front-end with [Express](https://expressjs.com/) and [Socket.io](https://chakra-ui.com/) on the back-end.
+
+## The Game
+<center>
+<img src='./assests/images/main.jpg' height='50%' width='50%'>
+<img src='./assests/images/playing.jpg' height='50%' width='50%'>
+</center>
 
 ## Future additions
 
-This project is a test for me. I am looking to convert the app to a PWA for offline play. Also will explore usage of socket.io to make multiplayer online mode.
+I look forward to adding more features to this project in the future. Including:
+
+    -Add MySQL DB using sequelize for the ability for a user to create an account and track their wins/losses
+    -Adding a ranked play mode for those users who have an account
+    -Add an in-game chat feature while playing a match.
 
