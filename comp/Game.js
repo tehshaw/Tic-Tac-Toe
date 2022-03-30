@@ -8,6 +8,7 @@ import {
   ModalCloseButton,
   useDisclosure,
   Button,
+  useColorModeValue
 } from '@chakra-ui/react'
 import { Box, Flex, Heading, Text, Center } from "@chakra-ui/layout";
 import { useEffect, useRef, useState } from "react";
@@ -127,11 +128,13 @@ export default function Game({gameMode, socket = null, inLobby = null}) {
       }
   }
 
+  const bg = useColorModeValue('blue.300', 'orange.200')
+
   return (
     <>
       {isOnePlayer && <Button onClick={() => startGame()}>Restart</Button>}
       {myMove ? (<>
-          <Heading bg='blue.600' p='2' borderRadius={'10px'}>You are playing as {myMove}</Heading>
+          <Heading bg={bg} p='2' borderRadius={'10px'}>You are playing as {myMove}</Heading>
           <Heading mb="4">
             {gameOver ? (`${winner.current} won!`) : (`It is ${whosTurn}'s turn to play!`)}
           </Heading>

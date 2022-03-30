@@ -2,6 +2,14 @@
   padding: 0 2rem;
 }
 
+.play{
+  border: solid;
+  border-radius: 15px;
+  margin: 5px;
+  padding: 4px;
+  width: 500px;
+}
+
 .main {
   min-height: 90vh;
   flex: 1;

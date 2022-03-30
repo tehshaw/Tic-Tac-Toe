@@ -1,5 +1,6 @@
 // 1. import `extendTheme` function
-import { extendTheme, ThemeConfig } from "@chakra-ui/react"
+import { extendTheme, theme } from "@chakra-ui/react"
+import { mode } from '@chakra-ui/theme-tools'
 
 // 2. Add your color mode config
 const config = {
@@ -7,7 +8,18 @@ const config = {
     useSystemColorMode: false, // options are true or false
 }
 
-// 3. extend the theme
-const theme = extendTheme({ config })
+const customTheme = extendTheme({
+  styles: {
+    global: (props) => ({
+      body: {
+        fontFamily: 'body',
+        color: mode('blue.800', 'grey.300')(props),
+        bg: mode('orange.100', 'blue.800')(props),
+        lineHeight: 'base',
+      },
+    }),
+  },
+})
 
-export default theme
+ export default customTheme;
+

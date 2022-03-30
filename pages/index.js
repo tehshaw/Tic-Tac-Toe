@@ -1,21 +1,28 @@
 import React from 'react'
-import { Box, Center } from "@chakra-ui/layout";
+import { Box, Center, Text } from "@chakra-ui/layout";
 import Link from 'next/link';
 import styles from '../styles/Home.module.css'
 
 
 export default function index() {
+  
 
   return (
     <div className={styles.main}>
     <>
-        <Box>
-            <Center fontSize="5em" m='10px'><Link href='/play/Offline'>Play NPC</Link></Center>
-        </Box>
+        <Link href={"/play/Offline"} passHref>
+          <Box className={styles.play} as='button'>
+                <Text fontSize='5em'>Single Player!</Text>
+                Play against the computer.  
+          </Box>
+        </Link>
             
-        <Box>
-            <Center fontSize="5em" m='10px'><Link href='/play/Online'>Multi-Player</Link></Center>
-        </Box>
+        <Link href={"/play/Online"} passHref>
+          <Box className={styles.play} as='button'>
+                <Text fontSize='5em'>Multi-Player!</Text>
+                Play online against other people. 
+          </Box>
+        </Link>
     </>
     </div>
   )
