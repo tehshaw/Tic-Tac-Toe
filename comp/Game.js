@@ -23,7 +23,7 @@ export default function Game({gameMode, socket = null, inLobby = null}) {
   const [whosTurn, setWhosTurn] = useState('')
   const [isOnePlayer, setIsOnePlayer] = useState(false)
   const [gameOver, setGameOver] = useState(false)
-  const [gameInfo, setGameInfo] = useState('Waiting for another player to connect....')
+  const [gameInfo, setGameInfo] = useState('Both players in room. Game will start shortly.....')//useState('Waiting for another player to connect....')
   const [myMove, setMyMove] = useState('')
 
   const winner = useRef();
@@ -34,7 +34,7 @@ export default function Game({gameMode, socket = null, inLobby = null}) {
     if(!socket) return;
 
     socket.once('ready', (args) => {
-      setGameInfo('Both players in room. Game will start shortly.....')
+      setGameInfo(`Both players in room. Game will start shortly.....`)
     })
 
     socket.once('myMove', args => {
@@ -45,8 +45,8 @@ export default function Game({gameMode, socket = null, inLobby = null}) {
     })
 
     socket.once('eBrake', (args) =>{
-      alert('The other player disconnected. Returning to Lobby....')
       inLobby(true)
+      alert('The other player disconnected. Returning to Lobby....')
     })
 
    },[])
@@ -65,6 +65,10 @@ export default function Game({gameMode, socket = null, inLobby = null}) {
 
     //used to monitor how many instances of the 'move' listener are currently mounted
     // console.log(socket._callbacks.$move)
+
+    return () => {
+      if(socket) socket.off('move')
+    }
  
   }, [socket, grid]);
 
@@ -153,7 +157,7 @@ export default function Game({gameMode, socket = null, inLobby = null}) {
           
           </Flex>
       </>):
-            (<Heading>{gameInfo}</Heading>)}
+            (<Heading textAlign={'center'} wordBreak='break-word'>{gameInfo}</Heading>)}
     <>
       <Modal isOpen={isOpen} onClose={onClose} isCentered>
         <ModalOverlay />

@@ -40,6 +40,8 @@ main.prepare().then(() => {
 
         socket.emit('rooms', getActiveRooms())
 
+        sendUsers()
+
         socket.on('join', (args) =>{
             socket.join(args.room)
             socket.to(args.room).emit('message', socket.id + " has joined the room")
@@ -57,12 +59,13 @@ main.prepare().then(() => {
         })
 
         socket.on("disconnecting", () => {
-            console.log(socket.rooms);
+            // console.log(socket.rooms);
             if(socket.rooms.size > 1) leaveEarly(socket)
         });
 
         socket.on('disconnect' , () => {
             console.log('User ' + socket.id + ' disconnected')
+            sendUsers()
         })
 
         socket.on('create', () => {
@@ -88,53 +91,56 @@ main.prepare().then(() => {
 
     });
 
-
-
-async function leaveEarly(socket){
-    let myRoom = getMyRoom(socket)
-    const players = await io.in(myRoom).fetchSockets()
-    if(players.length > 1){
-        let opp = players.filter(player => player.id !== socket.id)
-        socket.to(myRoom).emit('message', `${socket.id} has left the game.`)
-        io.to(opp[0].id).emit('eBrake')
+    async function sendUsers(){
+        const users = await io.fetchSockets()
+        io.emit('users', users.length)        
     }
-    io.in(myRoom).socketsLeave(myRoom)
-    io.emit('rooms', getActiveRooms())
-}
 
-async function startGame(room){
-    const players = await io.in(room).fetchSockets()
-    const playerX = Math.floor(Math.random()*2)
-    setTimeout(() => {
-        io.in(room).emit('ready')
+    async function leaveEarly(socket){
+        let myRoom = getMyRoom(socket)
+        const players = await io.in(myRoom).fetchSockets()
+        if(players.length > 1){
+            let opp = players.filter(player => player.id !== socket.id)
+            socket.to(myRoom).emit('message', `${socket.id} has left the game.`)
+            io.to(opp[0].id).emit('eBrake')
+        }
+        io.in(myRoom).socketsLeave(myRoom)
+        io.emit('rooms', getActiveRooms())
+    }
+
+    async function startGame(room){
+        const players = await io.in(room).fetchSockets()
+        const playerX = Math.floor(Math.random()*2)
         setTimeout(() => {
-            if(playerX === 0){
-                io.to(players[0].id).emit('myMove', 'X')
-                io.to(players[1].id).emit('myMove', 'O')
-            }else{
-                io.to(players[1].id).emit('myMove', 'X')
-                io.to(players[0].id).emit('myMove', 'O')
-            }
-        }, 2000);
-    }, 1000);
-}
+            io.in(room).emit('ready')
+            setTimeout(() => {
+                if(playerX === 0){
+                    io.to(players[0].id).emit('myMove', 'X')
+                    io.to(players[1].id).emit('myMove', 'O')
+                }else{
+                    io.to(players[1].id).emit('myMove', 'X')
+                    io.to(players[0].id).emit('myMove', 'O')
+                }
+            }, 2000);
+        }, 1000);
+    }
 
-function getActiveRooms() {
-    const arr = Array.from(io.sockets.adapter.rooms);
-    const filtered = arr.filter(room => !room[1].has(room[0]))
-    const res = filtered.filter(i => i[1].size === 1);
-    const r = res.map(r => r[0])
-    // console.log("all rooms", res)
-    return r;
-}
+    function getActiveRooms() {
+        const arr = Array.from(io.sockets.adapter.rooms);
+        const filtered = arr.filter(room => !room[1].has(room[0]))
+        const res = filtered.filter(i => i[1].size === 1);
+        const r = res.map(r => r[0])
+        // console.log("all rooms", res)
+        return r;
+    }
 
-function getMyRoom(socket){
-    const rooms = Array.from(socket.rooms)
-    // console.log(rooms, socket.id)
-    const myRoom = rooms.filter(room => room !== socket.id)
-    // console.log("myRoom", myRoom)
-    return myRoom
-}
+    function getMyRoom(socket){
+        const rooms = Array.from(socket.rooms)
+        // console.log(rooms, socket.id)
+        const myRoom = rooms.filter(room => room !== socket.id)
+        // console.log("myRoom", myRoom)
+        return myRoom
+    }
 
 });
 

@@ -4,7 +4,7 @@
 
 The application is your classic Tic-Tac-Toe game. With the ability to play aganist a computer that will try to win and block you from doing so. The application also has an online option where you can create and/or join a room with another player to play. 
 
-I built this app using [Next.js](https://nextjs.org/) framework and [Chakra UI](https://chakra-ui.com/) for the front-end with [Express](https://expressjs.com/) and [Socket.io](https://chakra-ui.com/) on the back-end.
+I built this app using [Next.js](https://nextjs.org/) framework and [Chakra UI](https://chakra-ui.com/) for the front-end with [Express](https://expressjs.com/) and [Socket.io](https://socket.io/) on the back-end.
 
 ## The Game
 <center>

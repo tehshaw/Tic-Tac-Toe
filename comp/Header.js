@@ -17,7 +17,7 @@ export default function Header() {
             <link rel="icon" href="/icon.svg" />
         </Head>
 
-        <Flex direction={{base:"column", md:"row"}} justifyContent={{base:"center", md: "space-between"}} alignItems="center">
+        <Flex direction={{base:"column", md:"row"}} justifyContent={{base:"center", md: "space-between"}} alignItems="center" p='2'>
             <Heading><Link href='/'>Tic-Tac-Toe</Link></Heading>
             <Stack direction={{base: "column", md:"row"}} alignItems="center">
                 <Button fontSize="lg" p="1" m="1" onClick={toggleColorMode}>

@@ -10,6 +10,7 @@ export default function Online() {
   const [socket, setSocket] = useState(null);
   const [rooms, setRooms] = useState(null);
   const [inLobby, setInLobby] = useState(true);
+  const [activeUsers, setActiveUsers] = useState(0)
 
   useEffect(() => {
     setSocket(io());
@@ -46,6 +47,10 @@ export default function Online() {
       if (inLobby) setRooms(args);
     });
 
+    socket.on('users', args => {
+      setActiveUsers(args)
+    })
+
     socket.on("message", (args) => {
       console.log(args);
     });
@@ -62,16 +67,18 @@ export default function Online() {
     <div>
       <Flex
         className={styles.menu}
-        justifyContent={{ base: "center", md: "space-between" }}
+        flexDir={{base: 'column', md: 'row'}}
+        justifyContent={{base:"center", md: "space-between"}}
+        alignItems='center'
         flexWrap="warp"
-        padding="1rem"
+        padding="1.5rem"
       >
-        <Box>Connection Status:{socket ? " Connected" : " Not Connected"}</Box>
+        <Box>Server Status:{socket ? " Connected" : " Not Connected"}</Box>
         <Box>
+          Connected users: {socket ? (activeUsers) : ('Not Connected')} 
           {/* <Button
             onClick={() => {
               socket.emit("report");
-              console.log(socket._callbacks);
             }}
           >
             Debug
@@ -117,7 +124,6 @@ export default function Online() {
                       onClick={() => {
                         setInLobby(true);
                         socket.emit("leave");
-                        socket.off("move")
                       }}
                     >
                       Leave Game
@@ -127,7 +133,7 @@ export default function Online() {
               </Flex>
 
               {inLobby ? (
-                <Flex flexWrap="wrap" maxW="1000px" margin="2rem">
+                <Flex flexWrap="wrap" margin="2rem" justifyContent={{base: 'space-evenly', md: 'center'}}>
                   {rooms.map((room) => {
                     return (
                       <>

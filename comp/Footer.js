@@ -1,20 +1,38 @@
-import React from 'react'
-import Image from 'next/image'
+import React from "react";
+import Image from "next/image";
 import styles from "../styles/Home.module.css";
 
 export default function Footer() {
   return (
     <footer className={styles.footer}>
-        <a
-        href="https://vercel.com?utm_source=create-next-app&utm_medium=default-template&utm_campaign=create-next-app"
-        target="_blank"
-        rel="noopener noreferrer"
-        >
-        Powered by{" "}
+      Powered by: 
+      <a href="https://nextjs.org/" target="_blank" rel="noopener noreferrer">
+        Next JS
         <span className={styles.logo}>
-            <Image src="/vercel.svg" alt="Vercel Logo" width={72} height={16} />
+          <Image src="/next.svg" alt="Next Logo" width={16} height={16} />
         </span>
-        </a>
-  </footer>  
-  )
+      </a>
+      |
+      <a href="https://chakra-ui.com/" target="_blank" rel="noopener noreferrer">
+        Chakra UI
+        <span className={styles.logo}>
+          <Image src="/chakra.svg" alt="Next Logo" width={16} height={16} />
+        </span>
+      </a>
+      |
+      <a href="https://socket.io/" target="_blank" rel="noopener noreferrer">
+        Socket.io
+        <span className={styles.logo}>
+          <Image src="/socket.svg" alt="Next Logo" width={16} height={16} />
+        </span>
+      </a>
+      |
+      <a href="https://expressjs.com/" target="_blank" rel="noopener noreferrer">
+        Express
+        <span className={styles.logo}>
+          <Image src="/express.svg" alt="Next Logo" width={16} height={16} />
+        </span>
+      </a>
+    </footer>
+  );
 }
