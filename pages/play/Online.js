@@ -54,6 +54,8 @@ export default function Online() {
     socket.on("message", (args) => {
       console.log(args);
     });
+
+    return () => socket.disconnect()
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [socket]);
 
@@ -92,7 +94,7 @@ export default function Online() {
           {rooms ? (
             <>
               <Flex flexWrap="warp" padding="10px" justifyContent="center">
-                {inLobby ? (
+                {inLobby && (
                   <>
                     <Button
                       className={styles.button}
@@ -114,19 +116,6 @@ export default function Online() {
                       }}
                     >
                       Disconnect
-                    </Button>
-                  </>
-                ) : (
-                  <>
-                    <Button
-                      className={styles.button}
-                      border="2px"
-                      onClick={() => {
-                        setInLobby(true);
-                        socket.emit("leave");
-                      }}
-                    >
-                      Leave Game
                     </Button>
                   </>
                 )}

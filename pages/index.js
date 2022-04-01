@@ -12,14 +12,14 @@ export default function index() {
     <>
         <Link href={"/play/Offline"} passHref>
           <Box className={styles.play} as='button'>
-                <Text fontSize='5em'>Single Player!</Text>
+                <Text fontSize='5em'>Single Player</Text>
                 Play against the computer.  
           </Box>
         </Link>
             
         <Link href={"/play/Online"} passHref>
           <Box className={styles.play} as='button'>
-                <Text fontSize='5em'>Multi-Player!</Text>
+                <Text fontSize='5em'>Multi-Player</Text>
                 Play online against other people. 
           </Box>
         </Link>

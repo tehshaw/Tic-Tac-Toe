@@ -8,14 +8,19 @@ import {
   ModalCloseButton,
   useDisclosure,
   Button,
-  useColorModeValue
+  useColorModeValue,
+  Grid,
+  GridItem
 } from '@chakra-ui/react'
+import { useRouter } from "next/router";
+import { VscDebugRestart } from "react-icons/vsc";
 import { Box, Flex, Heading, Text, Center } from "@chakra-ui/layout";
 import { useEffect, useRef, useState } from "react";
 import { checkWinCon } from '../logic/WinCon'
 import { playerTwo } from '../logic/PlayerTwo';
 
 export default function Game({gameMode, socket = null, inLobby = null}) {
+  const router = useRouter();
   const matchStart = {one:"", two:"", three:"", four:"", five:"", six:"", seven:"", eight:"", nine:""}
 
   const { isOpen, onOpen, onClose } = useDisclosure()
@@ -23,7 +28,7 @@ export default function Game({gameMode, socket = null, inLobby = null}) {
   const [whosTurn, setWhosTurn] = useState('')
   const [isOnePlayer, setIsOnePlayer] = useState(false)
   const [gameOver, setGameOver] = useState(false)
-  const [gameInfo, setGameInfo] = useState('Both players in room. Game will start shortly.....')//useState('Waiting for another player to connect....')
+  const [gameInfo, setGameInfo] = useState('Waiting for another player to connect....')
   const [myMove, setMyMove] = useState('')
 
   const winner = useRef();
@@ -136,13 +141,70 @@ export default function Game({gameMode, socket = null, inLobby = null}) {
 
   return (
     <>
-      {isOnePlayer && <Button onClick={() => startGame()}>Restart</Button>}
+      
       {myMove ? (<>
-          <Heading bg={bg} p='2' borderRadius={'10px'}>You are playing as {myMove}</Heading>
-          <Heading mb="4">
-            {gameOver ? (`${winner.current} won!`) : (`It is ${whosTurn}'s turn to play!`)}
-          </Heading>
+
+          <Grid templateRows='repeat(2, 1fr)' templateColumns='repeat(4, 1fr)' gap={4} alignItems='center'>
+            <GridItem gridArea='1/1/ span 2 / span 1' w='100%' textAlign='center'>
+              {isOnePlayer ? (
+                <Button
+                  onClick={() => {
+                    router.push('/')
+                  }}
+                >
+                  Main Menu
+                </Button>
+              ):
+              (
+                <Button 
+                  onClick={() => { 
+                      inLobby(true);
+                      socket.emit("leave");
+                    }}
+                >
+                  Leave Game
+                </Button>
+              )}
+  
+            </GridItem>
+
+            <GridItem colSpan={2} w='100%' textAlign='center'>
+              <Heading bg={bg} p='2'borderRadius='10px'>You are playing as {myMove}</Heading>
+            </GridItem>
+
+            <GridItem colSpan={2} w='100%' textAlign='center'>
+              <Heading mb='4' size='lg'>
+                {gameOver ? (`${winner.current} won!`) : (`It is ${whosTurn}'s turn to play!`)}
+              </Heading>
+            </GridItem>
+
+            <GridItem gridArea='1/4/ span 2 / span 1' w='100%' textAlign='center'> 
+              {isOnePlayer && 
+                <Button 
+                  rightIcon={<VscDebugRestart />} 
+                  onClick={() => startGame()}
+                >
+                  {gameOver ? ('Replay') : ('Restart')}
+                </Button>
+              }
+              {!isOnePlayer && gameOver &&
+                <Button 
+                  rightIcon={<VscDebugRestart />} 
+                  onClick={() => startGame()}
+                >
+                  Rematch?
+                </Button>
+              }
+            </GridItem>
+
+          </Grid>
+
+
+
+ 
           <Flex flexWrap="wrap" alignItems="center" justifyContent="center" maxW="1000px">
+
+       
 
             {Object.keys(grid).map(square => {
               return (<>
@@ -157,7 +219,14 @@ export default function Game({gameMode, socket = null, inLobby = null}) {
           
           </Flex>
       </>):
-            (<Heading textAlign={'center'} wordBreak='break-word'>{gameInfo}</Heading>)}
+            (<>
+              <Heading textAlign={'center'} wordBreak='break-word'>{gameInfo}</Heading>
+
+              <Button border='2px' onClick={() => { inLobby(true) }} m='2'>
+              Back to Lobby
+              </Button>
+            </>
+            )}
     <>
       <Modal isOpen={isOpen} onClose={onClose} isCentered>
         <ModalOverlay />

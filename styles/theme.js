@@ -19,6 +19,9 @@ const customTheme = extendTheme({
       },
     }),
   },
+  fonts: {
+    heading: 'league mono narrow, sans serif',
+  }
 })
 
  export default customTheme;

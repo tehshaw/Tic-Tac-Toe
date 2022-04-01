@@ -1,6 +1,6 @@
 import React from 'react'
 import { useColorMode } from "@chakra-ui/color-mode";
-import { Flex, Heading, Stack, Button } from '@chakra-ui/react';
+import { Flex, Heading, Stack, Button, Text } from '@chakra-ui/react';
 import Head from "next/head";
 import Link from 'next/link';
 import styles from "../styles/Home.module.css";
