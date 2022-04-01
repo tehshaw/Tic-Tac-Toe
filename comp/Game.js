@@ -196,12 +196,12 @@ export default function Game({gameMode, socket = null, inLobby = null}) {
               </Button>
             ):
             (<>
-              <Button bg='green.400'
-                rightIcon={<VscChromeClose />} 
+              {/* <Button 
+                rightIcon={<VscDebugRestart />} 
                 onClick={()=> socket.emit('rematch')}
               >
                 Rematch?
-              </Button>
+              </Button> */}
             </>
             )}
             </GridItem>
