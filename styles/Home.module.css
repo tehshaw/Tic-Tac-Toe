@@ -7,7 +7,6 @@
   border-radius: 15px;
   margin: 5px;
   padding: 4px;
-  width: 500px;
 }
 
 .main {
@@ -21,6 +20,7 @@
 
 .footer {
   display: flex;
+  flex-wrap: wrap;
   flex: 1;
   padding: 2rem 0;
   justify-content: center;

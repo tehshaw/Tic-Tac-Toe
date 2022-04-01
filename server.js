@@ -80,6 +80,11 @@ main.prepare().then(() => {
             leaveEarly(socket)
         })
 
+        socket.on('rematch', () =>{
+            socket.data.rematch = true;
+            console.log(socket.data)
+        })
+
         socket.on('report', () => {
             console.log(socket._events)
             socket.emit('message', {activeRooms: '', rooms:getActiveRooms()})

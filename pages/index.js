@@ -11,15 +11,15 @@ export default function index() {
     <div className={styles.main}>
     <>
         <Link href={"/play/Offline"} passHref>
-          <Box className={styles.play} as='button'>
-                <Text fontSize='5em'>Single Player</Text>
+          <Box className={styles.play} w={{base: '275px', sm:'500px'}} as='button'>
+                <Text fontSize={{base: '4xl', sm: '7xl'}}>Single Player</Text>
                 Play against the computer.  
           </Box>
         </Link>
             
         <Link href={"/play/Online"} passHref>
-          <Box className={styles.play} as='button'>
-                <Text fontSize='5em'>Multi-Player</Text>
+          <Box className={styles.play} w={{base: '275px', sm:'500px'}} as='button'>
+                <Text fontSize={{base: '4xl', sm: '7xl'}}>Multi-Player</Text>
                 Play online against other people. 
           </Box>
         </Link>

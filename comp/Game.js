@@ -13,7 +13,7 @@ import {
   GridItem
 } from '@chakra-ui/react'
 import { useRouter } from "next/router";
-import { VscDebugRestart } from "react-icons/vsc";
+import { VscDebugRestart, VscCheck, VscChromeClose } from "react-icons/vsc";
 import { Box, Flex, Heading, Text, Center } from "@chakra-ui/layout";
 import { useEffect, useRef, useState } from "react";
 import { checkWinCon } from '../logic/WinCon'
@@ -42,16 +42,16 @@ export default function Game({gameMode, socket = null, inLobby = null}) {
       setGameInfo(`Both players in room. Game will start shortly.....`)
     })
 
-    socket.once('myMove', args => {
+    socket.on('myMove', args => {
       setGameInfo(`You will be playing as "${args}"`)
       onOpen()
       setMyMove(args)
-      setGrid(matchStart)
+      startGame()
     })
 
     socket.once('eBrake', (args) =>{
       inLobby(true)
-      alert('The other player disconnected. Returning to Lobby....')
+      // alert('The other player disconnected. Returning to Lobby....')
     })
 
    },[])
@@ -144,8 +144,10 @@ export default function Game({gameMode, socket = null, inLobby = null}) {
       
       {myMove ? (<>
 
-          <Grid templateRows='repeat(2, 1fr)' templateColumns='repeat(4, 1fr)' gap={4} alignItems='center'>
-            <GridItem gridArea='1/1/ span 2 / span 1' w='100%' textAlign='center'>
+        {/* START - MAIN INFO GRID ABOVE THE GAME BOARD */}
+          <Grid templateRows={{base: 'repeat (4, 1fr)', lg: 'repeat(2, 1fr)'}} templateColumns={{ base: 'repeat(2, 1fr)', lg: 'repeat(4, 1fr)'}} gap={4} mt='2'alignItems='center'>
+            {/* Top Left box */}
+            <GridItem gridArea={{ base: '3/1/ span 1 / span 1', lg: '1/1/ span 1 / span 1'}} w='100%' textAlign='center'>
               {isOnePlayer ? (
                 <Button
                   onClick={() => {
@@ -168,40 +170,50 @@ export default function Game({gameMode, socket = null, inLobby = null}) {
   
             </GridItem>
 
-            <GridItem colSpan={2} w='100%' textAlign='center'>
-              <Heading bg={bg} p='2'borderRadius='10px'>You are playing as {myMove}</Heading>
+            {/* Bottom Left box */}
+            <GridItem></GridItem>
+
+            {/* Top Middle Box (2 wide) */}
+            <GridItem gridArea={{ base: '1/1/ span 1 / span 2', lg: '1/2/ span 1 / span 2'}} w='100%'>
+              <Heading bg={bg} p='2' borderRadius='10px' textAlign='center' size='lg'>You are playing as {myMove}</Heading>
             </GridItem>
 
-            <GridItem colSpan={2} w='100%' textAlign='center'>
-              <Heading mb='4' size='lg'>
-                {gameOver ? (`${winner.current} won!`) : (`It is ${whosTurn}'s turn to play!`)}
+            {/* Borrom Middle Box (2 wide) */}
+            <GridItem gridArea={{ base: '2/1/ span 1 / span 2', lg: '2/2/ span 1 / span 2'}} w='100%' textAlign='center'>
+              <Heading p='2' size='lg'>
+                {gameOver ? (`${winner.current} won!`) : (`It is ${whosTurn}'s turn!`)}
               </Heading>
             </GridItem>
-
-            <GridItem gridArea='1/4/ span 2 / span 1' w='100%' textAlign='center'> 
-              {isOnePlayer && 
-                <Button 
-                  rightIcon={<VscDebugRestart />} 
-                  onClick={() => startGame()}
-                >
-                  {gameOver ? ('Replay') : ('Restart')}
-                </Button>
-              }
-              {!isOnePlayer && gameOver &&
-                <Button 
-                  rightIcon={<VscDebugRestart />} 
-                  onClick={() => startGame()}
-                >
-                  Rematch?
-                </Button>
-              }
+            
+            {/* Top Right box */}
+            <GridItem gridArea={{ base: '3/2/ span 1 / span 1', lg: '1/4/ span 1 / span 1'}} w='100%' textAlign='center'> 
+            {isOnePlayer ? (
+              <Button 
+                rightIcon={<VscDebugRestart />} 
+                onClick={() => startGame()}
+              >
+                {gameOver ? ('Replay') : ('Restart')}
+              </Button>
+            ):
+            (<>
+              <Button bg='green.400'
+                rightIcon={<VscChromeClose />} 
+                onClick={()=> socket.emit('rematch')}
+              >
+                Rematch?
+              </Button>
+            </>
+            )}
             </GridItem>
 
+            {/* Bottom Right Box */}
+            <GridItem></GridItem>
+      
           </Grid>
+        {/* END - MAIN INFO GRID ABOVE THE GAME BOARD */}
 
 
-
- 
+        {/* START - GAME BOARD AREA */}
           <Flex flexWrap="wrap" alignItems="center" justifyContent="center" maxW="1000px">
 
        
@@ -218,16 +230,21 @@ export default function Game({gameMode, socket = null, inLobby = null}) {
             })}
           
           </Flex>
-      </>):
-            (<>
-              <Heading textAlign={'center'} wordBreak='break-word'>{gameInfo}</Heading>
 
-              <Button border='2px' onClick={() => { inLobby(true) }} m='2'>
-              Back to Lobby
-              </Button>
-            </>
-            )}
+        {/* START - GAME BOARD AREA */}
+
+      </>):
+      (<>
+      {/* INFO SECTION SHOWING WHEN WAITING FOR OPPONENT TO JOIN A ROOM AFTER CREATION AND ON JOIN */}
+        <Heading textAlign={'center'} wordBreak='break-word'>{gameInfo}</Heading>
+
+        <Button border='2px' onClick={() => { inLobby(true) }} m='2'>
+          Back to Lobby
+        </Button>
+      </>
+      )}
     <>
+
       <Modal isOpen={isOpen} onClose={onClose} isCentered>
         <ModalOverlay />
         <ModalContent>

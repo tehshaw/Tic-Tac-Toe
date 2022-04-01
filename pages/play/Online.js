@@ -73,7 +73,7 @@ export default function Online() {
         justifyContent={{base:"center", md: "space-between"}}
         alignItems='center'
         flexWrap="warp"
-        padding="1.5rem"
+        padding={{base: '0.5rem', md: "1.5rem"}}
       >
         <Box>Server Status:{socket ? " Connected" : " Not Connected"}</Box>
         <Box>
